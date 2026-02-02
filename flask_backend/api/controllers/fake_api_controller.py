@@ -7,6 +7,10 @@ from flask import Blueprint, jsonify, request
 fake = Blueprint("fake", __name__, url_prefix="/api/v1")
 
 
+@fake.route("practice/test", methods=['GET'])
+def practice_test():
+    return jsonify({"course": "cosc 224"}), 200
+
 @fake.route("/scanners", methods=("POST", "GET"))
 def get_scanner():
     if request.method == "GET":
@@ -28,6 +32,7 @@ def get_scanner():
                         "scanned_files_count": 1703,
                         "sequence": 14,
                         "source": 1,
+                        "course": "cosc 224",
                         "started_at": "2019-04-27T07:25:35.463545+00:00",
                         "updated_at": "2020-02-17T10:47:01.774983+00:00",
                         "version": None,
