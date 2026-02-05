@@ -6,6 +6,9 @@ from flask import Blueprint, jsonify, request
 
 fake = Blueprint("fake", __name__, url_prefix="/api/v1")
 
+@fake.route("practice/test", methods=['GET'])
+def practice_test():
+    return jsonify({"course": "cosc 224"}), 200
 
 @fake.route("/scanners", methods=("POST", "GET"))
 def get_scanner():
