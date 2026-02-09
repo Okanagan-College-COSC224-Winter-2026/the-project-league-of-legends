@@ -26,6 +26,8 @@ export default function Assignment() {
   const [stuID, setStuID] = useState<number>(0);
   const [selectedCriteria, setSelectedCriteria] = useState<SelectedCriterion[]>([]);
   const [review, setReview] = useState<number[]>([]);
+  const [showRubricCreator, setShowRubricCreator] = useState(false);
+  const [rubricRefresh, setRubricRefresh] = useState(0);
 
   useEffect(() => {
       (async () => {
@@ -82,22 +84,25 @@ export default function Assignment() {
         tabs={[
           {
             label: "Home",
-            path: `/assignment/${id}`,
+            path: `/assignments/${id}`,
           },
           {
             label: "Group",
-            path: `/assignment/${id}/group`,
+            path: `/assignments/${id}/group`,
           }
         ]}
       />
 
       <div className='assignmentRubricDisplay'>
-        <RubricDisplay rubricId={Number(id)} onCriterionSelect={handleCriterionSelect} grades={review} />
+        <RubricDisplay rubricId={Number(id)} onCriterionSelect={handleCriterionSelect} grades={review} refresh={rubricRefresh} />
       </div>
       {
         isTeacher() && 
           <div className='assignmentRubric'>
-            <RubricCreator id={Number(id)}/>
+            <button onClick={() => setShowRubricCreator(prev => !prev)} className='showRubricBtn'>
+              {showRubricCreator ? 'Hide Rubric Creator' : 'Create Rubric'}
+            </button>
+            {showRubricCreator && <RubricCreator id={Number(id)} onRubricCreated={() => { setRubricRefresh(prev => prev + 1); setShowRubricCreator(false); }} />}
           </div>
       }
 

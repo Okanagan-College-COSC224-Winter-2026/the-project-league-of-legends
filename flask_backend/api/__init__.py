@@ -108,5 +108,9 @@ def create_app(test_config=None):
     app.register_blueprint(class_controller.bp)
     app.register_blueprint(assignment_controller.bp)
     app.register_blueprint(fake_api_controller.fake)
+    # Rubric controller (teachers can create rubrics and criteria)
+    from .controllers import rubric_controller
+
+    app.register_blueprint(rubric_controller.bp)
 
     return app

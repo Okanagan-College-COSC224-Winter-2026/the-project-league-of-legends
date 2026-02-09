@@ -271,9 +271,17 @@ export const saveGroups = async (groupID: number, userID: number, assignmentID :
 }
 
 export const getCriteria = async (rubricID: number) => {
-  const resp = await fetch(`${BASE_URL}/criteria?rubricID=${rubricID}`, {
+  // Try treating the id as a rubric id first, then fall back to assignment id
+  let resp = await fetch(`${BASE_URL}/criteria?rubricID=${rubricID}`, {
     credentials: 'include'
   })
+
+  // If not found, try as assignmentID
+  if (resp.status === 404) {
+    resp = await fetch(`${BASE_URL}/criteria?assignmentID=${rubricID}`, {
+      credentials: 'include'
+    })
+  }
 
   maybeHandleExpire(resp);
 
@@ -325,9 +333,16 @@ export const createRubric = async (id: number, assignmentID: number, canComment:
 }
 
 export const getRubric = async (rubricID: number) => {
-  const resp = await fetch(`${BASE_URL}/rubric?rubricID=${rubricID}`, {
+  // Try as rubricID first, fall back to assignmentID
+  let resp = await fetch(`${BASE_URL}/rubric?rubricID=${rubricID}`, {
       credentials: 'include'
   });
+
+  if (resp.status === 404) {
+      resp = await fetch(`${BASE_URL}/rubric?assignmentID=${rubricID}`, {
+          credentials: 'include'
+      });
+  }
 
   maybeHandleExpire(resp);
 
@@ -338,6 +353,39 @@ export const getRubric = async (rubricID: number) => {
   return await resp.json();
 }
 
+export const editRubric = async (rubricID: number, updates: { canComment?: boolean }) => {
+  const response = await fetch(`${BASE_URL}/edit_rubric`, {
+    method: 'PATCH',
+    body: JSON.stringify({ rubricID, ...updates }),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const deleteRubric = async (rubricID: number) => {
+  const response = await fetch(`${BASE_URL}/delete_rubric/${rubricID}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
 
 export const createAssignment = async (courseID: number, name: string)=> {
   const response = await fetch(`${BASE_URL}/assignment/create_assignment`, {
