@@ -568,3 +568,38 @@ export const changePassword = async (currentPassword: string, newPassword: strin
 
   return await response.json();
 }
+
+export const editCriteria = async (criteriaID: number, updates: { question?: string; scoreMax?: number }) => {
+  const response = await fetch(`${BASE_URL}/edit_criteria`, {
+    method: 'PATCH',
+    body: JSON.stringify({ criteriaID, ...updates }),
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include'
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const deleteCriteria = async (criteriaID: number) => {
+  const response = await fetch(`${BASE_URL}/delete_criteria/${criteriaID}`, {
+    method: 'DELETE',
+    credentials: 'include'
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => null);
+    throw new Error(err?.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+

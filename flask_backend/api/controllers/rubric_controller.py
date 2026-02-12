@@ -187,3 +187,75 @@ def delete_rubric(rubric_id):
 
     rubric.delete()
     return jsonify({"msg": "Rubric deleted"}), 200
+
+@bp.route("/edit_criteria", methods=["PATCH"])
+@jwt_teacher_required
+def edit_criteria():
+    data = request.get_json() or {}
+    criteria_id = data.get("criteriaID")
+    
+    if not criteria_id:
+        return jsonify({"msg": "criteriaID is required"}), 400
+
+    criteria = CriteriaDescription.get_by_id(criteria_id)
+    if not criteria:
+        return jsonify({"msg": "Criteria not found"}), 404
+
+    rubric = Rubric.get_by_id(criteria.rubricID)
+    if not rubric:
+        return jsonify({"msg": "Rubric not found"}), 404
+
+    assignment = Assignment.get_by_id(rubric.assignmentID)
+    if not assignment:
+        return jsonify({"msg": "Assignment not found"}), 404
+
+    email = get_jwt_identity()
+    user = User.get_by_email(email)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    course = Course.get_by_id(assignment.courseID)
+    if not course:
+        return jsonify({"msg": "Class not found"}), 404
+    if course.teacherID != user.id:
+        return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    # Apply allowed updates
+    if "question" in data:
+        criteria.question = data.get("question")
+    if "scoreMax" in data:
+        criteria.scoreMax = int(data.get("scoreMax"))
+    
+    criteria.update()
+
+    return jsonify({"msg": "Criteria updated", "criteria": CriteriaDescriptionSchema().dump(criteria)}), 200
+
+
+@bp.route("/delete_criteria/<int:criteria_id>", methods=["DELETE"])
+@jwt_teacher_required
+def delete_criteria(criteria_id):
+    criteria = CriteriaDescription.get_by_id(criteria_id)
+    if not criteria:
+        return jsonify({"msg": "Criteria not found"}), 404
+
+    rubric = Rubric.get_by_id(criteria.rubricID)
+    if not rubric:
+        return jsonify({"msg": "Rubric not found"}), 404
+
+    assignment = Assignment.get_by_id(rubric.assignmentID)
+    if not assignment:
+        return jsonify({"msg": "Assignment not found"}), 404
+
+    email = get_jwt_identity()
+    user = User.get_by_email(email)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    course = Course.get_by_id(assignment.courseID)
+    if not course:
+        return jsonify({"msg": "Class not found"}), 404
+    if course.teacherID != user.id:
+        return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    criteria.delete()
+    return jsonify({"msg": "Criteria deleted"}), 200

@@ -122,3 +122,31 @@ def test_rubric_endpoints_require_authentication(test_client):
 
     resp2 = test_client.get("/criteria?rubricID=1")
     assert resp2.status_code == 401
+
+def test_teacher_can_add_additional_criteria(test_client, make_admin):
+    make_admin(email="teacher3@example.com", password="teacher", name="teacher3")
+    test_client.post("/auth/login", data=json.dumps({"email": "teacher3@example.com", "password": "teacher"}), headers={"Content-Type": "application/json"})
+
+    class_resp = test_client.post("/class/create_class", data=json.dumps({"name": "Physics 101"}), headers={"Content-Type": "application/json"})
+    class_id = class_resp.json["class"]["id"]
+
+    assign_resp = test_client.post("/assignment/create_assignment", data=json.dumps({"courseID": class_id, "name": "HW1", "rubric": "Initial rubric"}), headers={"Content-Type": "application/json"})
+    assignment_id = assign_resp.json["assignment"]["id"]
+
+    # create rubric
+    rubric_resp = test_client.post("/create_rubric", data=json.dumps({"assignmentID": assignment_id, "canComment": True}), headers={"Content-Type": "application/json"})
+    rubric_id = rubric_resp.json["id"]
+
+    # add first criterion
+    c1 = test_client.post("/create_criteria", data=json.dumps({"rubricID": rubric_id, "question": "First", "scoreMax": 4, "hasScore": True}), headers={"Content-Type": "application/json"})
+    assert c1.status_code == 201
+
+    # add second criterion to same rubric
+    c2 = test_client.post("/create_criteria", data=json.dumps({"rubricID": rubric_id, "question": "Second", "scoreMax": 3, "hasScore": True}), headers={"Content-Type": "application/json"})
+    assert c2.status_code == 201
+
+    # fetch criteria and assert both present
+    get_c = test_client.get(f"/criteria?rubricID={rubric_id}")
+    assert get_c.status_code == 200
+    qs = [q["question"] for q in get_c.json]
+    assert "First" in qs and "Second" in qs
