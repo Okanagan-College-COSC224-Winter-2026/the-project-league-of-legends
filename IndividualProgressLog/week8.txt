@@ -1,0 +1,10 @@
+Last Week (week 7), I was preparing for the three midterms coming up (COSC 
+315 on monday, 211 on thursday and BUAD 123 to be submitted by monday next
+week)
+This Week (week 8), I created the group evaluation file my group used and 
+shared it among my group and performed the majority of the evaluation work 
+there.
+Next Week (week 9), I plan on updating my local (on computer) branch to 
+the most recent version of the project, looking at the unfulfilled user 
+stories and asking my group about them so I can contribute more to the
+code side of the project.
