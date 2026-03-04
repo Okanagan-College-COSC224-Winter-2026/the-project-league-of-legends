@@ -6,10 +6,6 @@ import StatusMessage from '../components/StatusMessage';
 import { tryRegister } from '../util/api';
 import { useNavigate } from 'react-router-dom';
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

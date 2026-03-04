@@ -10,13 +10,10 @@ import Textbox from "../components/Textbox";
 import StatusMessage from "../components/StatusMessage";
 import { isTeacher } from "../util/login";
 
-<<<<<<< HEAD
-=======
 //US9 - import the model for assignment editor
 import AssignmentEditor from "../components/AssignmentEditor";
 import { editAssignment, deleteAssignment } from "../util/api";
 
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 export default function ClassHome() {
   const { id } = useParams();
   const idNew = Number(id)
@@ -26,8 +23,6 @@ export default function ClassHome() {
   const [statusMessage, setStatusMessage] = useState('');
   const [statusType, setStatusType] = useState<'error' | 'success'>('error');
 
-<<<<<<< HEAD
-=======
   
   // Define update payload type to avoid `any`
   type AssignmentUpdate = {
@@ -38,7 +33,6 @@ export default function ClassHome() {
 
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null); //edit assignment component state
 
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
   useEffect(() => {
     (async () => {
       const resp = await listAssignments(String(id));
@@ -47,11 +41,7 @@ export default function ClassHome() {
       setAssignments(resp);
       setClassName(currentClass?.name || null);
     })();
-<<<<<<< HEAD
-  }, []);
-=======
   }, [id]);
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
     
     const tryCreateAssingment = async () => {
       try {
@@ -73,8 +63,6 @@ export default function ClassHome() {
         setStatusMessage('Error creating assignment.');
       }
     };
-<<<<<<< HEAD
-=======
 
     //US9 - handle edit assignment
     const handleEditAssignment = async (updates: AssignmentUpdate) => {
@@ -109,7 +97,6 @@ const handleDeleteAssignment = async (assignmentId: number) => {
     setStatusMessage('Error deleting assignment.');
   }
 };
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
     
     return (
       <>
@@ -142,26 +129,18 @@ const handleDeleteAssignment = async (assignmentId: number) => {
 
       <StatusMessage message={statusMessage} type={statusType} />
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
       <div className="Class">
         <div className="Assignments">
           <ul className="Assignment">
             {assignments.map((assignment) => {
               return (
                 <li key={assignment.id}>
-<<<<<<< HEAD
-                  <AssignmentCard id={assignment.id}>
-=======
                   <AssignmentCard 
                     id={assignment.id}
                     onEdit={() => setEditingAssignment(assignment)}
                     onDelete={handleDeleteAssignment}
                     isTeacher={isTeacher()}
                   >
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
                     {assignment.name}
                   </AssignmentCard>
                 </li>
@@ -188,8 +167,6 @@ const handleDeleteAssignment = async (assignmentId: number) => {
           </div>
         ) : null}
       </div>
-<<<<<<< HEAD
-=======
 
 
 
@@ -200,7 +177,6 @@ const handleDeleteAssignment = async (assignmentId: number) => {
           onCancel={() => setEditingAssignment(null)}
         />
       )}
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
     </>
   );
 }

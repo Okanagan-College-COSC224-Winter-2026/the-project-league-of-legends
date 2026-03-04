@@ -13,10 +13,7 @@ from .controllers import (
     fake_api_controller,
     user_controller,
     assignment_controller,
-<<<<<<< HEAD
     rubric_controller,
-=======
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 )
 from .models.db import db, ma
 
@@ -111,10 +108,7 @@ def create_app(test_config=None):
     app.register_blueprint(admin_controller.bp)
     app.register_blueprint(class_controller.bp)
     app.register_blueprint(assignment_controller.bp)
-<<<<<<< HEAD
     app.register_blueprint(rubric_controller.bp)
-=======
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
     app.register_blueprint(fake_api_controller.fake)
 
     return app

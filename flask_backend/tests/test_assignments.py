@@ -30,12 +30,6 @@ def test_teacher_can_create_assignment(test_client, make_admin):
     class_id = class_response.json["class"]["id"]
 
     # Now, create the assignment
-<<<<<<< HEAD
-    assignment_response = test_client.post(
-        "/assignment/create_assignment",
-        data=json.dumps(
-            {"courseID": class_id, "name": "Essay 1", "rubric": "Quality of writing", "due_date": datetime.datetime(2025, 12, 31, 23, 59, 59).isoformat()}
-=======
     # use a future due date so test remains valid over time
     future_due = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)).replace(microsecond=0)
     due_str = future_due.replace(tzinfo=None).isoformat()
@@ -43,7 +37,6 @@ def test_teacher_can_create_assignment(test_client, make_admin):
         "/assignment/create_assignment",
         data=json.dumps(
             {"courseID": class_id, "name": "Essay 1", "rubric": "Quality of writing", "due_date": due_str}
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
         ),
         headers={"Content-Type": "application/json"},
     )
@@ -52,11 +45,7 @@ def test_teacher_can_create_assignment(test_client, make_admin):
     assert assignment_response.json["msg"] == "Assignment created"
     assert assignment_response.json["assignment"]["name"] == "Essay 1"
     assert assignment_response.json["assignment"]["rubric_text"] == "Quality of writing"
-<<<<<<< HEAD
-    assert assignment_response.json["assignment"]["due_date"] == "2025-12-31T23:59:59"
-=======
     assert assignment_response.json["assignment"]["due_date"] == due_str
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 
 
 def test_create_assignment_missing_fields(test_client, make_admin):
@@ -194,12 +183,9 @@ def test_teacher_can_edit_assignment_before_due_date(test_client, make_admin):
     )
     class_id = class_response.json["class"]["id"]
     # Now, create the assignment with a future due date
-<<<<<<< HEAD
-=======
     # create with a future due date
     initial_due = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=60)).replace(microsecond=0)
     initial_due_str = initial_due.replace(tzinfo=None).isoformat()
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
     assignment_response = test_client.post(
         "/assignment/create_assignment",
         data=json.dumps(
@@ -207,34 +193,23 @@ def test_teacher_can_edit_assignment_before_due_date(test_client, make_admin):
                 "courseID": class_id,
                 "name": "Lab Report 1",
                 "rubric": "Completeness",
-<<<<<<< HEAD
-                "due_date": datetime.datetime(2025, 12, 31, 23, 59, 59).isoformat(),
-=======
                 "due_date": initial_due_str,
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
             }
         ),
         headers={"Content-Type": "application/json"},
     )
     assignment_id = assignment_response.json["assignment"]["id"]
     # Now, edit the assignment
-<<<<<<< HEAD
-=======
     # edit to an earlier (but still future) due date
     edited_due = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)).replace(microsecond=0)
     edited_due_str = edited_due.replace(tzinfo=None).isoformat()
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
     edit_response = test_client.patch(
         f"/assignment/edit_assignment/{assignment_id}",
         data=json.dumps(
             {
                 "name": "Updated Lab Report 1",
                 "rubric": "Thoroughness",
-<<<<<<< HEAD
-                "due_date": datetime.datetime(2025, 11, 30, 23, 59, 59).isoformat(),
-=======
                 "due_date": edited_due_str,
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
             }
         ),
         headers={"Content-Type": "application/json"},
@@ -243,11 +218,7 @@ def test_teacher_can_edit_assignment_before_due_date(test_client, make_admin):
     assert edit_response.json["msg"] == "Assignment updated"
     assert edit_response.json["assignment"]["name"] == "Updated Lab Report 1"
     assert edit_response.json["assignment"]["rubric_text"] == "Thoroughness"
-<<<<<<< HEAD
-    assert edit_response.json["assignment"]["due_date"] == "2025-11-30T23:59:59"
-=======
     assert edit_response.json["assignment"]["due_date"] == edited_due_str
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 
 def test_teacher_cannot_edit_assignment_after_due_date(test_client, make_admin):
     """

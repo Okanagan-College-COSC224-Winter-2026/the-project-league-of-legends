@@ -23,21 +23,13 @@
   margin: 8px;
   padding-bottom: 16px;
 
-<<<<<<< HEAD
-  height: 50%;
-=======
   height: 70%;
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
   width: 30%;
 
   background-color: #fff;
 
   min-height: 300px;
-<<<<<<< HEAD
-  max-height: 400px;
-=======
   max-height: 700px;
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 }
 
 .RegisterInner {
@@ -49,19 +41,12 @@
 }
 
 .RegisterButton {
-<<<<<<< HEAD
-  margin-bottom: 16px;
-}
-
-.RegisterInputs {
-=======
   margin-bottom: 36px;
   margin-top:25px
 }
 
 .RegisterInputs {
   flex:1;
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
   display: flex;
   flex-direction: column;
   align-items: center;

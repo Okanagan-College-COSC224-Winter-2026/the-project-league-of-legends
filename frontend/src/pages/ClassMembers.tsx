@@ -21,11 +21,7 @@ export default function ClassMembers() {
       setMembers(members)
       setClassName(currentClass?.name || null);
     })()
-<<<<<<< HEAD
-  }, [])  
-=======
   }, [id])  
->>>>>>> 2d1214aa1b6b5d771ee7dd2b19b3ababf49f6831
 
   return (
     <>
