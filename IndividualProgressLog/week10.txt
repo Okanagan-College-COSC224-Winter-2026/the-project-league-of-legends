@@ -1,0 +1,13 @@
+Last Week (week 9), I updated my local (on computer) branch to 
+the most recent version of the project, I looked at the unfulfilled user 
+stories I asked my group about them so I can contribute more to the
+code side of the project. They didn't suggest anything so I focused on 
+the other project that were imminent. 
+This Week (week 10), I did more documentation and group evals, as the 
+majority of my group does not show up for the other team's presentations.
+(Which is understandable, if rude.)
+I plan on asking about specifically US18 (Student Registration in 
+Rosters), as that can already be done by uploading multiple students in
+a CSV file. I also did my part in reviewing the code.
+Next Week (week 11), I will do US18 if it's recommended. If there is 
+still no recommendations I will start on US18 of my own initiative.
