@@ -1,0 +1,13 @@
+Last Week (week 10), I did more documentation and group evals, as the 
+majority of my group does not show up for the other team's presentations.
+I later learned this is standard practice (oops).
+I planned on asking about specifically US18 (Student Registration in 
+Rosters), as that can already be done by uploading multiple students in
+a CSV file. I also did my part in reviewing the code.
+This Week (week 10), I added email listing to the student list, but while
+I was working on adding a (currently non-functional) delete button that 
+is only visible to teachers I noticed an error where students can't see
+the members of their class (even if I remove their code). I'll ask my 
+team about this issue.
+Next Week (week 11), I will try to finish US18 to at least get something
+out the door.
