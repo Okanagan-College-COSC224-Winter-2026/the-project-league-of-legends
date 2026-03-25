@@ -94,6 +94,10 @@ def get_assignment_progress():
             .all()
         )
 
+        # Only show courses that already have at least one assignment.
+        if not assignments:
+            continue
+
         assignment_payload = []
         for assignment in assignments:
             submitted_student_ids = {

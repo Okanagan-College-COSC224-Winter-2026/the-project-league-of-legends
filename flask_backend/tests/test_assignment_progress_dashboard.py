@@ -126,3 +126,35 @@ def test_assignment_progress_dashboard_forbidden_for_student(test_client, dbsess
 
     resp = test_client.get("/dashboard/assignment-progress")
     assert resp.status_code == 403
+
+
+def test_assignment_progress_excludes_courses_without_assignments(test_client, dbsession):
+    teacher = User(
+        name="Teacher",
+        email="teacher.noassignment@example.com",
+        hash_pass=generate_password_hash("pw123456"),
+        role="teacher",
+    )
+    dbsession.add(teacher)
+    dbsession.commit()
+
+    empty_course = Course(teacherID=teacher.id, name="Empty Course")
+    active_course = Course(teacherID=teacher.id, name="Active Course")
+    dbsession.add_all([empty_course, active_course])
+    dbsession.commit()
+
+    assignment = Assignment(courseID=active_course.id, name="Assignment X", rubric_text=None)
+    dbsession.add(assignment)
+    dbsession.commit()
+
+    login_resp = _login(test_client, teacher.email, "pw123456")
+    assert login_resp.status_code == 200
+
+    resp = test_client.get("/dashboard/assignment-progress")
+    assert resp.status_code == 200
+
+    data = resp.get_json()
+    course_names = [course["course_name"] for course in data["courses"]]
+
+    assert "Active Course" in course_names
+    assert "Empty Course" not in course_names
