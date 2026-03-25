@@ -15,6 +15,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ChangePassword from "./pages/ChangePassword";
 import CreateTeacher from "./pages/CreateTeacher";
 import Dashboard from "./pages/Dashboard";
+import AssignmentProgress from "./pages/AssignmentProgress";
 
 function AppContent() {
   const location = useLocation();
@@ -43,6 +44,15 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/assignment-progress"
+            element={
+              <ProtectedRoute>
+                <AssignmentProgress />
               </ProtectedRoute>
             }
           />

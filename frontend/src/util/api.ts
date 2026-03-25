@@ -685,3 +685,73 @@ export const deleteAssignment = async (assignmentId: number) => {
 
   return await response.json();
 };
+
+export type StudentProgressRow = {
+  student_id: number;
+  student_name: string;
+  submission_status: "submitted" | "not_submitted";
+};
+
+export type GroupProgressMember = {
+  user_id: number;
+  user_name: string;
+};
+
+export type GroupProgressRow = {
+  group_id: number;
+  group_name: string;
+  evaluation_status:
+    | "evaluated"
+    | "partially_evaluated"
+    | "not_evaluated"
+    | "no_members";
+  reviewed_member_count: number;
+  total_members: number;
+  members: GroupProgressMember[];
+};
+
+export type AssignmentProgressItem = {
+  assignment_id: number;
+  assignment_name: string;
+  due_date: string | null;
+  student_progress: StudentProgressRow[];
+  group_progress: GroupProgressRow[];
+};
+
+export type AssignmentProgressCourse = {
+  course_id: number;
+  course_name: string;
+  assignments: AssignmentProgressItem[];
+};
+
+export type AssignmentProgressResponse = {
+  courses: AssignmentProgressCourse[];
+};
+
+export const getAssignmentProgress =
+  async (): Promise<AssignmentProgressResponse> => {
+    const resp = await fetch(`${BASE_URL}/dashboard/assignment-progress`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    maybeHandleExpire(resp);
+
+    if (!resp.ok) {
+      const message = await resp
+        .json()
+        .then((data) => {
+          if (data && typeof data === "object" && "msg" in data) {
+            return String((data as { msg: unknown }).msg);
+          }
+          return "Unknown server error";
+        })
+        .catch(() => "Unknown server error");
+
+      throw new Error(
+        `Assignment progress request failed (${resp.status}): ${message}`,
+      );
+    }
+
+    return await resp.json();
+  };

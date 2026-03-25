@@ -1,4 +1,5 @@
 import { logout } from "../util/login";
+import { hasRole } from "../util/login";
 import "./Sidebar.css";
 
 export default function Sidebar() {
@@ -24,12 +25,21 @@ export default function Sidebar() {
           Dashboard
         </SidebarRow>
 
+        {hasRole("teacher", "admin") ? (
+          <SidebarRow
+            selected={location === "/assignment-progress"}
+            href="/assignment-progress"
+          >
+            Assignment progress
+          </SidebarRow>
+        ) : null}
+
         {/* TODO: make this ID match who is logged in */}
         <SidebarRow selected={location.includes("/profile")} href="/profile/1">
           My Info
         </SidebarRow>
-          <SidebarRow 
-          selected={location === '/change-password'} 
+        <SidebarRow
+          selected={location === "/change-password"}
           href="/change-password"
         >
           Change Password
