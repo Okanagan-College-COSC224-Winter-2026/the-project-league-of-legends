@@ -3,7 +3,6 @@ import ClassCard from "../components/ClassCard";
 
 import "./Home.css";
 import { listAssignments, searchCourses } from "../util/api";
-import { isTeacher, isAdmin } from "../util/login";
 
 export default function Home() {
   const [allCourses, setAllCourses] = useState<CourseWithAssignments[]>([]);
@@ -144,23 +143,6 @@ export default function Home() {
           );
         })}
 
-        {isTeacher() && (
-          <div
-            className="ClassCreateButton"
-            onClick={() => (window.location.href = "/classes/create")}
-          >
-            <h2>Create Class</h2>
-          </div>
-        )}
-
-        {isAdmin() && (
-          <div
-            className="ClassCreateButton"
-            onClick={() => (window.location.href = "/admin/create-teacher")}
-          >
-            <h2>Create Teacher</h2>
-          </div>
-        )}
       </div>
     </div>
   );
