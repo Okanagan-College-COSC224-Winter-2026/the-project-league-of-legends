@@ -56,8 +56,12 @@ export default function AssignmentProgress() {
         if (cancelled) {
           return;
         }
+        const isForbiddenError =
+          err instanceof Error && err.message.includes("(403)");
         setError(
-          err instanceof Error
+          isForbiddenError
+            ? "You do not have permission to view assignment progress."
+            : err instanceof Error
             ? err.message
             : "Failed to load assignment progress.",
         );

@@ -27,6 +27,15 @@ export default function Sidebar() {
 
         {isTeacher() && (
           <SidebarRow
+            selected={location === "/assignment-progress"}
+            href="/assignment-progress"
+          >
+            Assignment Progress
+          </SidebarRow>
+        )}
+
+        {isTeacher() && (
+          <SidebarRow
             selected={location === "/classes/create"}
             href="/classes/create"
           >

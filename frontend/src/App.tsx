@@ -52,7 +52,7 @@ function AppContent() {
           <Route
             path="/assignment-progress"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["teacher"]}>
                 <AssignmentProgress />
               </ProtectedRoute>
             }

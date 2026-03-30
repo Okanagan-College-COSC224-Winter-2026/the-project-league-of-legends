@@ -180,7 +180,7 @@ export const listAssignments = async (classId: string) => {
 
 export const listStuGroup = async (assignmentId: number, studentId: number) => {
   const resp = await fetch(
-    `${BASE_URL}/list_stu_groups/` + assignmentId + "/" + studentId,
+    `${BASE_URL}/assignment/list_stu_groups/` + assignmentId + "/" + studentId,
     {
       method: "GET",
       headers: {
@@ -200,7 +200,7 @@ export const listStuGroup = async (assignmentId: number, studentId: number) => {
 };
 
 export const listGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/list_all_groups/` + assignmentId, {
+  const resp = await fetch(`${BASE_URL}/assignment/list_all_groups/` + assignmentId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -217,7 +217,7 @@ export const listGroups = async (assignmentId: number) => {
 };
 
 export const listUnassignedGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/list_ua_groups/` + assignmentId, {
+  const resp = await fetch(`${BASE_URL}/assignment/list_ua_groups/` + assignmentId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -226,6 +226,28 @@ export const listUnassignedGroups = async (assignmentId: number) => {
   });
 
   maybeHandleExpire(resp);
+
+  if (!resp.ok) {
+    throw new Error(`Response status: ${resp.status}`);
+  }
+
+  return await resp.json();
+};
+
+export const listAssignmentMembers = async (assignmentId: number) => {
+  const resp = await fetch(`${BASE_URL}/assignment/${assignmentId}/members`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(resp);
+
+  if (!resp.ok) {
+    throw new Error(`Response status: ${resp.status}`);
+  }
 
   return await resp.json();
 };
@@ -253,7 +275,7 @@ export const listGroupMembers = async (
   groupID: number,
 ) => {
   const resp = await fetch(
-    `${BASE_URL}/list_group_members/` + assignmentId + "/" + groupID,
+    `${BASE_URL}/assignment/list_group_members/` + assignmentId + "/" + groupID,
     {
       method: "GET",
       headers: {
@@ -273,7 +295,7 @@ export const listGroupMembers = async (
 };
 
 export const getUserId = async () => {
-  const resp = await fetch(`${BASE_URL}/user_id`, {
+  const resp = await fetch(`${BASE_URL}/assignment/user_id`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -295,7 +317,7 @@ export const saveGroups = async (
   userID: number,
   assignmentID: number,
 ) => {
-  await fetch(`${BASE_URL}/save_groups`, {
+  const response = await fetch(`${BASE_URL}/assignment/save_groups`, {
     method: "POST",
     body: JSON.stringify({
       groupID,
@@ -307,6 +329,12 @@ export const saveGroups = async (
     },
     credentials: "include",
   });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+  }
 };
 
 export const getCriteria = async (rubricID: number) => {
@@ -433,7 +461,7 @@ export const createAssignment = async (courseID: number, name: string) => {
 };
 
 export const deleteGroup = async (groupID: number) => {
-  await fetch(`${BASE_URL}/delete_group`, {
+  const response = await fetch(`${BASE_URL}/assignment/delete_group`, {
     method: "POST",
     body: JSON.stringify({
       groupID,
@@ -443,6 +471,12 @@ export const deleteGroup = async (groupID: number) => {
     },
     credentials: "include",
   });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+  }
 };
 
 export const createReview = async (
@@ -522,7 +556,7 @@ export const getReview = async (
 
 export const getNextGroupID = async (assignmentID: number) => {
   const response = await fetch(
-    `${BASE_URL}/next_groupid?assignmentID=${assignmentID}`,
+    `${BASE_URL}/assignment/next_groupid?assignmentID=${assignmentID}`,
     {
       method: "GET",
       headers: {
@@ -546,7 +580,7 @@ export const createGroup = async (
   name: string,
   id: number,
 ) => {
-  const response = await fetch(`${BASE_URL}/create_group`, {
+  const response = await fetch(`${BASE_URL}/assignment/create_group`, {
     method: "POST",
     body: JSON.stringify({
       assignmentID,

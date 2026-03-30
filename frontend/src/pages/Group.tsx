@@ -5,7 +5,7 @@ import {
   createGroup,
   getNextGroupID,
   getUserId,
-  listCourseMembers,
+  listAssignmentMembers,
   listGroupMembers,
   listGroups,
   listStuGroup,
@@ -110,27 +110,32 @@ export default function Group() {
     (async () => {
       if (!id) return;
 
-      const classMembersResp = await listCourseMembers(String(id));
+      const assignmentId = Number(id);
+
+      if (!isTeacher()) {
+        const stuId = await getUserId();
+        if (cancelled) return;
+
+        const stus = await listStuGroup(assignmentId, stuId);
+        if (cancelled) return;
+        setStuGroup(stus);
+        return;
+      }
+
+      const classMembersResp = await listAssignmentMembers(assignmentId);
       if (cancelled) return;
       setclassMembers(classMembersResp);
 
-      const groupsResp = await listGroups(Number(id));
+      const groupsResp = await listGroups(assignmentId);
       if (cancelled) return;
       setGroups(groupsResp);
 
-      const ua = await listUnassignedGroups(Number(id));
+      const ua = await listUnassignedGroups(assignmentId);
       if (cancelled) return;
-
-      const stuId = await getUserId();
-      if (cancelled) return;
-
-      const stus = await listStuGroup(Number(id), stuId);
-      if (cancelled) return;
-      setStuGroup(stus);
 
       const groupMembers: { [key: number]: GroupTableValue[] } = {};
       for (const g of groupsResp) {
-        const members = await listGroupMembers(Number(id), g.id);
+        const members = await listGroupMembers(assignmentId, g.id);
         if (cancelled) return;
         groupMembers[g.id] = members;
       }
