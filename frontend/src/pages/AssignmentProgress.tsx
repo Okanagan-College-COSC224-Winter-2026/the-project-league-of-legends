@@ -62,8 +62,8 @@ export default function AssignmentProgress() {
           isForbiddenError
             ? "You do not have permission to view assignment progress."
             : err instanceof Error
-            ? err.message
-            : "Failed to load assignment progress.",
+              ? err.message
+              : "Failed to load assignment progress.",
         );
         console.error(err);
       } finally {

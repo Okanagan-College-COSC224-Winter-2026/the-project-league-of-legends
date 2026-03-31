@@ -56,7 +56,7 @@ export async function tryRegister(
   email: string,
   password: string,
 ): Promise<{ ok: boolean; msg?: string }> {
-  const res = await fetch("http://127.0.0.1:5000/auth/register", {
+  const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -200,13 +200,16 @@ export const listStuGroup = async (assignmentId: number, studentId: number) => {
 };
 
 export const listGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/assignment/list_all_groups/` + assignmentId, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+  const resp = await fetch(
+    `${BASE_URL}/assignment/list_all_groups/` + assignmentId,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
     },
-    credentials: "include",
-  });
+  );
   maybeHandleExpire(resp);
 
   if (!resp.ok) {
@@ -217,13 +220,16 @@ export const listGroups = async (assignmentId: number) => {
 };
 
 export const listUnassignedGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/assignment/list_ua_groups/` + assignmentId, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
+  const resp = await fetch(
+    `${BASE_URL}/assignment/list_ua_groups/` + assignmentId,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
     },
-    credentials: "include",
-  });
+  );
 
   maybeHandleExpire(resp);
 
