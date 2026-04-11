@@ -1,11 +1,14 @@
 """
 User management endpoints
 """
+import os
+import uuid
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request, send_from_directory
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from marshmallow import Schema, ValidationError, fields, validate
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 from ..models import User, UserSchema
 
@@ -14,11 +17,39 @@ bp = Blueprint("user", __name__, url_prefix="/user")
 # Create schema instances once (reusable)
 user_schema = UserSchema()
 
+ALLOWED_IMAGE_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+
+
+def allowed_image(filename: str) -> bool:
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+    )
+
+def get_profile_picture_folder() -> str:
+    folder = os.path.join(
+        current_app.instance_path,
+        "uploads",
+        "profile_pictures",
+    )
+    os.makedirs(folder, exist_ok=True)
+    return folder
+
+
 
 class UserUpdateSchema(Schema):
-    """Schema for updating user information"""
+    """Schema for updating private/self profile information"""
 
-    name = fields.Str(validate=validate.Length(min=1, max=255))
+    username = fields.Str(
+        required=False,
+        allow_none=True,
+        validate=validate.Length(min=1, max=100),
+    )
+    pronouns = fields.Str(
+        required=False,
+        allow_none=True,
+        validate=validate.Length(max=100),
+    )
 
 
 user_update_schema = UserUpdateSchema()
@@ -60,30 +91,78 @@ def get_user_by_id(user_id):
 @bp.route("/", methods=["PUT"])
 @jwt_required()
 def update_current_user():
-    """Update current user information"""
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+    """
+    Update current user private profile info.
 
-    # Validate input with Marshmallow
-    try:
-        data = user_update_schema.load(request.json)
-    except ValidationError as err:
-        return jsonify({"msg": "Validation error", "errors": err.messages}), 400
-
+    Supports either:
+    - multipart/form-data for username/pronouns/profile picture
+    - application/json for username/pronouns
+    """
     email = get_jwt_identity()
     user = User.get_by_email(email)
 
     if not user:
         return jsonify({"msg": "User not found"}), 404
 
-    # Update allowed fields
-    if "name" in data:
-        user.name = data["name"]
+    if request.content_type and request.content_type.startswith("multipart/form-data"):
+        raw_data = {
+            "username": request.form.get("username"),
+            "pronouns": request.form.get("pronouns"),
+        }
+    elif request.is_json:
+        raw_data = request.get_json() or {}
+    else:
+        return jsonify({"msg": "Expected JSON or multipart form data"}), 400
+
+    cleaned_data = {}
+    for key in ("username", "pronouns"):
+        if key in raw_data:
+            value = raw_data.get(key)
+            if value == "":
+                cleaned_data[key] = None
+            else:
+                cleaned_data[key] = value
+
+    try:
+        data = user_update_schema.load(cleaned_data)
+    except ValidationError as err:
+        return jsonify({"msg": "Validation error", "errors": err.messages}), 400
+
+    if "username" in data:
+        user.username = data["username"]
+
+    if "pronouns" in data:
+        user.pronouns = data["pronouns"]
+
+    uploaded_file = request.files.get("profile_picture")
+    if uploaded_file and uploaded_file.filename:
+        if not allowed_image(uploaded_file.filename):
+            return jsonify({"msg": "Invalid image file type"}), 400
+
+        original_name = secure_filename(uploaded_file.filename)
+        ext = original_name.rsplit(".", 1)[1].lower()
+        filename = f"user_{user.id}_{uuid.uuid4().hex}.{ext}"
+
+        folder = get_profile_picture_folder()
+        save_path = os.path.join(folder, filename)
+        uploaded_file.save(save_path)
+
+        user.profile_picture = filename
 
     user.update()
 
-    return jsonify(user_schema.dump(user)), 200
+    return jsonify(
+        {
+            "msg": "Profile updated successfully",
+            "user": user_schema.dump(user),
+        }
+    ), 200
 
+@bp.route("/profile-picture/<path:filename>", methods=["GET"])
+def get_profile_picture(filename):
+    """Serve uploaded profile pictures"""
+    folder = get_profile_picture_folder()
+    return send_from_directory(folder, filename)
 
 @bp.route("/<int:user_id>", methods=["DELETE"])
 @jwt_required()

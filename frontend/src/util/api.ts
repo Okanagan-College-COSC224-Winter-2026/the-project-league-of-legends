@@ -1118,22 +1118,12 @@ export const resetUserPassword = async (userId: number, newPassword: string) => 
   return await response.json();
 };
 
-
-
-export const updateMyProfile = async (
-  name: string,
-  profilePicture?: File | null
-) => {
-  const formData = new FormData();
-  formData.append("name", name);
-
-  if (profilePicture) {
-    formData.append("profile_picture", profilePicture);
-  }
-
-  const response = await fetch(`${BASE_URL}/user/profile`, {
-    method: "PATCH",
-    body: formData,
+export const getMyProfile = async () => {
+  const response = await fetch(`${BASE_URL}/user/`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
     credentials: "include",
   });
 
@@ -1141,15 +1131,34 @@ export const updateMyProfile = async (
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(data.msg || "Failed to update profile");
+    throw new Error(data.msg || `Response status: ${response.status}`);
   }
 
   return await response.json();
 };
 
-export const getMyProfile = async () => {
-  const response = await fetch(`${BASE_URL}/user/profile`, {
-    method: "GET",
+export const updateMyProfile = async (updates: {
+  username?: string;
+  pronouns?: string;
+  profilePicture?: File | null;
+}) => {
+  const formData = new FormData();
+
+  if (updates.username !== undefined) {
+    formData.append("username", updates.username);
+  }
+
+  if (updates.pronouns !== undefined) {
+    formData.append("pronouns", updates.pronouns);
+  }
+
+  if (updates.profilePicture) {
+    formData.append("profile_picture", updates.profilePicture);
+  }
+
+  const response = await fetch(`${BASE_URL}/user/`, {
+    method: "PUT",
+    body: formData,
     credentials: "include",
   });
 
@@ -1158,7 +1167,7 @@ export const getMyProfile = async () => {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.msg || "Failed to load profile");
+    throw new Error(data.msg || `Response status: ${response.status}`);
   }
 
   return data;

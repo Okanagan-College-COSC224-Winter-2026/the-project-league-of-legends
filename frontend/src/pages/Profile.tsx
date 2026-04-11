@@ -6,14 +6,19 @@ import { getMyProfile, updateMyProfile } from "../util/api";
 type ProfileData = {
   id: number;
   name?: string;
+  username?: string | null;
   email?: string;
+  pronouns?: string | null;
   profile_picture?: string | null;
 };
 
 export default function Profile() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [fullName, setFullName] = useState("");
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [username, setUsername] = useState("");
+  const [pronouns, setPronouns] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | null>(
+    null
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -22,7 +27,8 @@ export default function Profile() {
       try {
         const data = await getMyProfile();
         setProfile(data);
-        setFullName(data.name || "");
+        setUsername(data.username || "");
+        setPronouns(data.pronouns || "");
 
         const existingRaw = localStorage.getItem("user");
         if (existingRaw) {
@@ -30,18 +36,21 @@ export default function Profile() {
             const existing = JSON.parse(existingRaw);
             const updatedLocal = {
               ...existing,
-              name: data.name,
+              username: data.username,
+              pronouns: data.pronouns,
               email: data.email,
               profile_picture: data.profile_picture,
               user: existing.user
                 ? {
                     ...existing.user,
-                    name: data.name,
+                    username: data.username,
+                    pronouns: data.pronouns,
                     email: data.email,
                     profile_picture: data.profile_picture,
                   }
                 : undefined,
             };
+
             localStorage.setItem(
               "user",
               JSON.stringify(updatedLocal)
@@ -73,7 +82,9 @@ export default function Profile() {
 
   const handleCancel = () => {
     if (!profile) return;
-    setFullName(profile.name || "");
+
+    setUsername(profile.username || "");
+    setPronouns(profile.pronouns || "");
     setSelectedImage(null);
     setIsEditing(false);
     setMessage("");
@@ -83,41 +94,40 @@ export default function Profile() {
     try {
       setMessage("");
 
-  // const { id } = useParams()
-      const result = await updateMyProfile(
-        fullName,
-        selectedImage
-      );
+      const result = await updateMyProfile({
+        username,
+        pronouns,
+        profilePicture: selectedImage,
+      });
 
-  // const [profile, setProfile] = useState({})
       const updated = result.user;
       setProfile(updated);
-      setFullName(updated.name || "");
+      setUsername(updated.username || "");
+      setPronouns(updated.pronouns || "");
       setSelectedImage(null);
       setIsEditing(false);
 
-  // useEffect(() => {
-  //   const f = async () => {
-  //     setProfile(await getProfile(id))
-  //   }
       const existingRaw = localStorage.getItem("user");
       if (existingRaw) {
         try {
           const existing = JSON.parse(existingRaw);
           const updatedLocal = {
             ...existing,
-            name: updated.name,
+            username: updated.username,
+            pronouns: updated.pronouns,
             email: updated.email,
             profile_picture: updated.profile_picture,
             user: existing.user
               ? {
                   ...existing.user,
-                  name: updated.name,
+                  username: updated.username,
+                  pronouns: updated.pronouns,
                   email: updated.email,
                   profile_picture: updated.profile_picture,
                 }
               : undefined,
           };
+
           localStorage.setItem(
             "user",
             JSON.stringify(updatedLocal)
@@ -127,8 +137,6 @@ export default function Profile() {
         }
       }
 
-  //   f()
-  // }, [])
       setMessage("Profile updated.");
     } catch (error) {
       console.error(error);
@@ -139,7 +147,7 @@ export default function Profile() {
   const profileImageSrc = selectedImage
     ? URL.createObjectURL(selectedImage)
     : profile?.profile_picture
-    ? `http://localhost:5000/user/${profile.profile_picture}`
+    ? `http://localhost:5000/user/profile-picture/${profile.profile_picture}`
     : "https://placehold.co/200x200";
 
   return (
@@ -149,32 +157,43 @@ export default function Profile() {
       </div>
 
       <div className="profile-info">
-        <h1>Full Name</h1>
-        <span>Place Holder</span>
-        <h1>Email</h1>
-        <span>placeholder@email.com</span>
-        
         {!isEditing ? (
           <>
-            <h1>Name</h1>
-            <span>{profile?.name || "No name found"}</span>
+            <h1>Full Name</h1>
+            <span>{profile?.name || "No full name found"}</span>
+
+            <h1>Username</h1>
+            <span>{profile?.username || "No username set"}</span>
 
             <h1>Email</h1>
             <span>{profile?.email || "No email found"}</span>
+
+            <h1>Pronouns</h1>
+            <span>{profile?.pronouns || "No pronouns set"}</span>
 
             <button onClick={handleEdit}>Edit Profile</button>
           </>
         ) : (
           <>
-            <h1>Name</h1>
+            <h1>Full Name</h1>
+            <span>{profile?.name || "No full name found"}</span>
+
+            <h1>Username</h1>
             <input
               type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
 
             <h1>Email</h1>
             <span>{profile?.email || "No email found"}</span>
+
+            <h1>Pronouns</h1>
+            <input
+              type="text"
+              value={pronouns}
+              onChange={(e) => setPronouns(e.target.value)}
+            />
 
             <h1>Profile Picture</h1>
             <input
@@ -195,5 +214,5 @@ export default function Profile() {
         {message && <p>{message}</p>}
       </div>
     </div>
-  )
+  );
 }

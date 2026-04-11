@@ -24,16 +24,25 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
-        include_fk = False  # Don't expose raw foreign keys
+        include_fk = False
         sqla_session = db.session
         exclude = ("hash_pass",)
 
-    # Explicit fields for clarity and validation
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
+    username = fields.Str(
+        allow_none=True,
+        validate=validate.Length(min=1, max=255),
+    )
     email = fields.Email(required=True)
+    pronouns = fields.Str(
+        allow_none=True,
+        validate=validate.Length(max=100),
+    )
+    profile_picture = fields.Str(allow_none=True)
     role = fields.Str(
-        dump_default="student", validate=validate.OneOf(["student", "teacher", "admin"])
+        dump_default="student",
+        validate=validate.OneOf(["student", "teacher", "admin"]),
     )
     must_change_password = fields.Bool(dump_default=False)
 
@@ -43,7 +52,11 @@ class UserRegistrationSchema(ma.Schema):
 
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     email = fields.Email(required=True)
-    password = fields.Str(required=True, load_only=True, validate=validate.Length(min=6))
+    password = fields.Str(
+        required=True,
+        load_only=True,
+        validate=validate.Length(min=6),
+    )
 
 
 class UserLoginSchema(ma.Schema):
@@ -60,7 +73,6 @@ class UserListSchema(ma.SQLAlchemyAutoSchema):
         model = User
         fields = ("id", "name", "email", "role")
         dump_only = ("id",)
-
 
 # ============================================================
 # COURSE SCHEMAS
