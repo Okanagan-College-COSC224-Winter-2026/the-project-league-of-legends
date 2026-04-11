@@ -77,7 +77,7 @@ export async function tryRegister(
   email: string,
   password: string,
 ): Promise<{ ok: boolean; msg?: string }> {
-  const res = await fetch("http://127.0.0.1:5000/auth/register", {
+  const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -102,15 +102,18 @@ export const createClass = async (name: string) => {
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include", // Include cookies (JWT token)
+    credentials: "include",
   });
 
   maybeHandleExpire(response);
 
+  const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`);
+    throw new Error(data.msg || `Response status: ${response.status}`);
   }
-  return response;
+
+  return data;
 };
 
 export const listClasses = async () => {
@@ -262,7 +265,7 @@ export const listGroups = async (assignmentId: number) => {
 };
 
 export const listUnassignedGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/groups/list_ua_groups/` + assignmentId, {
+  const resp = await fetch(`${BASE_URL}/groups/list_ua_groups/${assignmentId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -271,6 +274,11 @@ export const listUnassignedGroups = async (assignmentId: number) => {
   });
 
   maybeHandleExpire(resp);
+
+  if (!resp.ok) {
+    const data = await resp.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${resp.status}`);
+  }
 
   return await resp.json();
 };
@@ -386,7 +394,6 @@ export const createCriteria = async (
   rubricID: number,
   question: string,
   scoreMax: number,
-  canComment: boolean,
   hasScore: boolean = true,
 ) => {
   const response = await fetch(`${BASE_URL}/create_criteria`, {
@@ -395,7 +402,6 @@ export const createCriteria = async (
       rubricID,
       question,
       scoreMax,
-      canComment,
       hasScore,
     }),
     headers: {
@@ -409,6 +415,8 @@ export const createCriteria = async (
   if (!response.ok) {
     throw new Error(`Response status: ${response.status}`);
   }
+
+  return await response.json();
 };
 
 export const createRubric = async (
