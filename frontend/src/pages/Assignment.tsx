@@ -117,7 +117,7 @@ export default function Assignment() {
     }
     }, [assignmentId]);
 
-  const loadTeacherSubmissionGroups = async () => {
+    const loadTeacherSubmissionGroups = useCallback(async () => {
     try {
       const groups: CourseGroup[] = await listGroups(assignmentId);
       const groupMembers = await Promise.all(
@@ -142,7 +142,7 @@ export default function Assignment() {
       console.error("Error loading submission groups:", error);
       setStudentGroupNames({});
     }
-  };
+  }, [assignmentId]);
 
     const refreshTeacherSubmissionData = useCallback(async () => {
     await Promise.all([
@@ -207,8 +207,8 @@ export default function Assignment() {
             : "Failed to load assignment page",
         );
       }
-    })();
-  }, [assignmentId, isTeacherView]);
+      })();
+    }, [assignmentId, isTeacherView, refreshTeacherSubmissionData]);
 
   useEffect(() => {
     if (isTeacherView || revieweeID <= 0) {

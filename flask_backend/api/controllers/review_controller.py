@@ -14,7 +14,6 @@ from ..models import (
     User_Course,
 )
 from .auth_controller import jwt_role_required
-from flask_jwt_extended import get_jwt_identity
 
 bp = Blueprint("review", __name__, url_prefix="")
 
