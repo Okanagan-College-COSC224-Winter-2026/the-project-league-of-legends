@@ -151,12 +151,9 @@ def update_current_user():
 
     user.update()
 
-    return jsonify(
-        {
-            "msg": "Profile updated successfully",
-            "user": user_schema.dump(user),
-        }
-    ), 200
+    response_data = user_schema.dump(user)
+    response_data["msg"] = "Profile updated successfully"
+    return jsonify(response_data), 200
 
 @bp.route("/profile-picture/<path:filename>", methods=["GET"])
 def get_profile_picture(filename):

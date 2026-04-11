@@ -100,7 +100,7 @@ export default function Profile() {
         profilePicture: selectedImage,
       });
 
-      const updated = result.user;
+      const updated = result;
       setProfile(updated);
       setUsername(updated.username || "");
       setPronouns(updated.pronouns || "");

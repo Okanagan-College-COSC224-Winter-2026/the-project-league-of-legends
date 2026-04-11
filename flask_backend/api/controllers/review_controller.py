@@ -86,24 +86,7 @@ def create_criterion():
     if not review:
         return jsonify({"msg": "Review not found"}), 404
 
-    criteria_desc = CriteriaDescription.get_by_id(criterion_row_id)
-    if not criteria_desc:
-        # Backward compatibility: some frontend flows send the 0-based
-        # rubric row index instead of Criteria_Description.id.
-        assignment = Assignment.get_by_id(review.assignmentID)
-        rubric = (
-            assignment.rubrics.order_by(Rubric.id.asc()).first()
-            if assignment
-            else None
-        )
-        if rubric:
-            rubric_rows = rubric.criteria_descriptions.order_by(
-                CriteriaDescription.id.asc()
-            ).all()
-            if 0 <= criterion_row_id < len(rubric_rows):
-                criteria_desc = rubric_rows[criterion_row_id]
-                criterion_row_id = criteria_desc.id
-
+        criteria_desc = CriteriaDescription.get_by_id(criterion_row_id)
     if not criteria_desc:
         return jsonify({"msg": "Criteria description not found"}), 404
 
