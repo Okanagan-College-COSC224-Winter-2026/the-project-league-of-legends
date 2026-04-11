@@ -1,4 +1,4 @@
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import "./Assignment.css";
 import RubricCreator from "../components/RubricCreator";
@@ -100,7 +100,7 @@ export default function Assignment() {
     }
   };
 
-  const loadTeacherSubmissions = async () => {
+    const loadTeacherSubmissions = useCallback(async () => {
     try {
       setLoadingTeacherSubmissions(true);
       const submissions = await listAssignmentSubmissions(assignmentId);
@@ -115,7 +115,7 @@ export default function Assignment() {
     } finally {
       setLoadingTeacherSubmissions(false);
     }
-  };
+    }, [assignmentId]);
 
   const loadTeacherSubmissionGroups = async () => {
     try {
@@ -144,12 +144,12 @@ export default function Assignment() {
     }
   };
 
-  const refreshTeacherSubmissionData = async () => {
+    const refreshTeacherSubmissionData = useCallback(async () => {
     await Promise.all([
       loadTeacherSubmissions(),
       loadTeacherSubmissionGroups(),
     ]);
-  };
+  }, [loadTeacherSubmissions, loadTeacherSubmissionGroups]);
 
   const loadMySubmissionInfo = async (currentAssignmentId: number) => {
     try {

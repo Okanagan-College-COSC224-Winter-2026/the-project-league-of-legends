@@ -86,7 +86,7 @@ def create_criterion():
     if not review:
         return jsonify({"msg": "Review not found"}), 404
 
-        criteria_desc = CriteriaDescription.get_by_id(criterion_row_id)
+    criteria_desc = CriteriaDescription.get_by_id(criterion_row_id)
     if not criteria_desc:
         return jsonify({"msg": "Criteria description not found"}), 404
 

@@ -110,7 +110,9 @@ export const createClass = async (name: string) => {
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data.msg || `Response status: ${response.status}`);
+    throw new Error(
+      (data as { msg?: string }).msg || `Response status: ${response.status}`
+    );
   }
 
   return data;
@@ -239,7 +241,12 @@ export const listStuGroup = async (assignmentId: number, studentId: number) => {
   }
 
   const data = await resp.json();
-  return (data || []).map((student: any) => ({
+    return (data || []).map((student: {
+    userID?: number;
+    id?: number;
+    groupID?: number;
+    assignmentID?: number;
+  }) => ({
     userID: student.userID ?? student.id,
     groupID: student.groupID ?? -1,
     assignmentID: student.assignmentID ?? assignmentId,

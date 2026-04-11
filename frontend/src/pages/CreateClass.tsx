@@ -13,13 +13,11 @@ export default function CreateClass() {
 
   const attemptCreateClass = async () => {
   if (isSubmitting) return;
-
+  
   try {
     setIsSubmitting(true);
     setStatusMessage("");
-
-    const response = await createClass(name);
-
+    await createClass(name);
     setStatusType("success");
     setStatusMessage("Class created successfully!");
     setName("");

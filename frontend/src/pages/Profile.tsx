@@ -94,13 +94,12 @@ export default function Profile() {
     try {
       setMessage("");
 
-      const result = await updateMyProfile({
+           const updated = await updateMyProfile({
         username,
         pronouns,
         profilePicture: selectedImage,
       });
-
-      const updated = result;
+      
       setProfile(updated);
       setUsername(updated.username || "");
       setPronouns(updated.pronouns || "");

@@ -1,6 +1,6 @@
 // src/pages/Group.tsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   createGroup,
   getNextGroupID,
@@ -20,6 +20,17 @@ import TabNavigation from "../components/TabNavigation";
 import StatusMessage from "../components/StatusMessage";
 import { hasRole } from "../util/login";
 import Textbox from "../components/Textbox";
+
+type GroupMemberApi = {
+  userID?: number;
+  id?: number;
+  groupID?: number;
+  assignmentID?: number;
+};
+
+type ApiError = {
+  message?: string;
+};
 
 function fisherYates<T>(array: T[]): T[] {
   let m = array.length,
@@ -126,7 +137,7 @@ export default function Group() {
     setStatusMessage("Groups cleared and randomized. Click Confirm Changes to save.");
   };
 
-  const loadData = async (cancelled: () => boolean) => {
+  const loadData = useCallback(async (cancelled: () => boolean) => {
     if (!id) return;
 
     const assignmentResp = await getAssignment(Number(id));
@@ -147,7 +158,7 @@ export default function Group() {
       if (cancelled()) return;
 
       // Normalize backend user objects to frontend GroupTableValue shape
-      unassigned = (ua || []).map((user: any) => ({
+        unassigned = (ua || []).map((user: GroupMemberApi) => ({
         userID: user.userID ?? user.id,
         groupID: user.groupID ?? -1,
         assignmentID: Number(id),
@@ -161,7 +172,7 @@ export default function Group() {
     const stus = await listStuGroup(Number(id), stuId);
     if (cancelled()) return;
     setStuGroup(
-      (stus || []).map((stu: any) => ({
+        (stus || []).map((stu: GroupMemberApi) => ({
         userID: stu.userID ?? stu.id,
         groupID: stu.groupID ?? -1,
         assignmentID: Number(id),
@@ -174,7 +185,7 @@ export default function Group() {
         const members = await listGroupMembers(Number(id), g.id);
         if (cancelled()) return;
         // Convert returned user objects to GroupTableValue format
-        groupMembers[g.id] = (members || []).map((user: any) => ({
+        groupMembers[g.id] = (members || []).map((user: GroupMemberApi) => ({
           userID: user.userID ?? user.id,
           groupID: g.id,
           assignmentID: Number(id),
@@ -204,7 +215,7 @@ export default function Group() {
       if (cancelled()) return;
       setMemberTable(memLocal);
     }
-  };
+  }, [id, canManageGroups]);
 
   useEffect(() => {
     let cancelled = false;
@@ -216,7 +227,7 @@ export default function Group() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [loadData]);
 
   return (
     <>
@@ -309,11 +320,12 @@ export default function Group() {
                     setStatusMessage("Changes saved!");
 
                     // Reload data to reflect changes
-                    let cancelled = false;
+                    const cancelled = false;
                     await loadData(() => cancelled);
-                  } catch (err: any) {
+                  } catch (err: unknown) {
+                    const error = err as ApiError;
                     setStatusType("error");
-                    setStatusMessage(err.message || "Failed to save changes");
+                    setStatusMessage(error.message || "Failed to save changes");
                   }
                 }}
               >
@@ -338,11 +350,12 @@ export default function Group() {
                     setStatusMessage("Group deleted!");
 
                     // Reload data to reflect changes
-                    let cancelled = false;
+                    const cancelled = false;
                     await loadData(() => cancelled);
-                  } catch (err: any) {
+                  } catch (err: unknown) {
+                    const error = err as ApiError;
                     setStatusType("error");
-                    setStatusMessage(err.message || "Failed to delete group");
+                    setStatusMessage(error.message || "Failed to delete group");
                   }
                 }}
               >
@@ -366,11 +379,12 @@ export default function Group() {
                     setStatusMessage(result.msg || "Group created!");
 
                     // Reload all data so names and groups are in sync
-                    let cancelled = false;
+                    const cancelled = false;
                     await loadData(() => cancelled);
-                  } catch (err: any) {
+                  } catch (err: unknown) {
+                    const error = err as ApiError;
                     setStatusType("error");
-                    setStatusMessage(err.message || "Failed to create group");
+                    setStatusMessage(error.message || "Failed to create group");
                   }
                 }}
               >
