@@ -19,6 +19,27 @@ export const maybeHandleExpire = (response: Response) => {
   }
 };
 
+function getFilenameFromResponse(
+  response: Response,
+  fallbackName: string,
+): string {
+  const disposition = response.headers.get("Content-Disposition");
+
+  if (!disposition) return fallbackName;
+
+  const utfMatch = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utfMatch?.[1]) {
+    return decodeURIComponent(utfMatch[1]);
+  }
+
+  const normalMatch = disposition.match(/filename="?([^"]+)"?/i);
+  if (normalMatch?.[1]) {
+    return normalMatch[1];
+  }
+
+  return fallbackName;
+}
+
 export const tryLogin = async (email: string, password: string) => {
   try {
     const response = await fetch(`${BASE_URL}/auth/login`, {
@@ -56,7 +77,7 @@ export async function tryRegister(
   email: string,
   password: string,
 ): Promise<{ ok: boolean; msg?: string }> {
-  const res = await fetch("http://127.0.0.1:5000/auth/register", {
+  const res = await fetch(`${BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -81,15 +102,20 @@ export const createClass = async (name: string) => {
     headers: {
       "Content-Type": "application/json",
     },
-    credentials: "include", // Include cookies (JWT token)
+    credentials: "include",
   });
 
   maybeHandleExpire(response);
 
+  const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`);
+    throw new Error(
+      (data as { msg?: string }).msg || `Response status: ${response.status}`
+    );
   }
-  return response;
+
+  return data;
 };
 
 export const listClasses = async () => {
@@ -178,9 +204,27 @@ export const listAssignments = async (classId: string) => {
   return await resp.json();
 };
 
+export const getAssignment = async (assignmentId: number) => {
+  const resp = await fetch(`${BASE_URL}/assignment/details/` + assignmentId, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(resp);
+
+  if (!resp.ok) {
+    throw new Error(`Response status: ${resp.status}`);
+  }
+
+  return await resp.json();
+};
+
 export const listStuGroup = async (assignmentId: number, studentId: number) => {
   const resp = await fetch(
-    `${BASE_URL}/list_stu_groups/` + assignmentId + "/" + studentId,
+    `${BASE_URL}/groups/list_stu_groups/` + assignmentId + "/" + studentId,
     {
       method: "GET",
       headers: {
@@ -196,11 +240,22 @@ export const listStuGroup = async (assignmentId: number, studentId: number) => {
     throw new Error(`Response status: ${resp.status}`);
   }
 
-  return await resp.json();
+  const data = await resp.json();
+    return (data || []).map((student: {
+    userID?: number;
+    id?: number;
+    groupID?: number;
+    assignmentID?: number;
+  }) => ({
+    userID: student.userID ?? student.id,
+    groupID: student.groupID ?? -1,
+    assignmentID: student.assignmentID ?? assignmentId,
+  }));
 };
 
 export const listGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/list_all_groups/` + assignmentId, {
+  // new endpoint under /groups prefix
+  const resp = await fetch(`${BASE_URL}/groups/` + assignmentId, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -217,7 +272,7 @@ export const listGroups = async (assignmentId: number) => {
 };
 
 export const listUnassignedGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/list_ua_groups/` + assignmentId, {
+  const resp = await fetch(`${BASE_URL}/groups/list_ua_groups/${assignmentId}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -226,6 +281,11 @@ export const listUnassignedGroups = async (assignmentId: number) => {
   });
 
   maybeHandleExpire(resp);
+
+  if (!resp.ok) {
+    const data = await resp.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${resp.status}`);
+  }
 
   return await resp.json();
 };
@@ -253,7 +313,7 @@ export const listGroupMembers = async (
   groupID: number,
 ) => {
   const resp = await fetch(
-    `${BASE_URL}/list_group_members/` + assignmentId + "/" + groupID,
+    `${BASE_URL}/groups/list_group_members/` + assignmentId + "/" + groupID,
     {
       method: "GET",
       headers: {
@@ -272,8 +332,9 @@ export const listGroupMembers = async (
   return await resp.json();
 };
 
-export const getUserId = async () => {
-  const resp = await fetch(`${BASE_URL}/user_id`, {
+export const getUserId = async (): Promise<number> => {
+  // The backend provides current user info at /user/ (requires JWT cookie)
+  const resp = await fetch(`${BASE_URL}/user/`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -287,15 +348,15 @@ export const getUserId = async () => {
     throw new Error(`Response status: ${resp.status}`);
   }
 
-  return await resp.json();
+  const json = await resp.json();
+  if (!json || typeof json.id !== "number") {
+    throw new Error("Failed to determine current user ID");
+  }
+  return json.id;
 };
 
-export const saveGroups = async (
-  groupID: number,
-  userID: number,
-  assignmentID: number,
-) => {
-  await fetch(`${BASE_URL}/save_groups`, {
+export const saveGroups = async (groupID: number, userID: number, assignmentID: number) => {
+  const response = await fetch(`${BASE_URL}/groups/save_groups`, {
     method: "POST",
     body: JSON.stringify({
       groupID,
@@ -307,6 +368,15 @@ export const saveGroups = async (
     },
     credentials: "include",
   });
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    const msg = (data && (data.msg || data.message)) || `Response status: ${response.status}`;
+    throw new Error(msg);
+  }
+
+  return await response.json();
 };
 
 export const getCriteria = async (rubricID: number) => {
@@ -315,6 +385,10 @@ export const getCriteria = async (rubricID: number) => {
   });
 
   maybeHandleExpire(resp);
+
+  if (resp.status === 404) {
+    return [];
+  }
 
   if (!resp.ok) {
     throw new Error(`Response status: ${resp.status}`);
@@ -327,7 +401,6 @@ export const createCriteria = async (
   rubricID: number,
   question: string,
   scoreMax: number,
-  canComment: boolean,
   hasScore: boolean = true,
 ) => {
   const response = await fetch(`${BASE_URL}/create_criteria`, {
@@ -336,7 +409,6 @@ export const createCriteria = async (
       rubricID,
       question,
       scoreMax,
-      canComment,
       hasScore,
     }),
     headers: {
@@ -350,6 +422,8 @@ export const createCriteria = async (
   if (!response.ok) {
     throw new Error(`Response status: ${response.status}`);
   }
+
+  return await response.json();
 };
 
 export const createRubric = async (
@@ -384,6 +458,10 @@ export const getRubric = async (rubricID: number) => {
 
   maybeHandleExpire(resp);
 
+  if (resp.status === 404) {
+    return null;
+  }
+
   if (!resp.ok) {
     throw new Error(`Response status: ${resp.status}`);
   }
@@ -410,39 +488,54 @@ export const deleteRubric = async (rubricID: number) => {
   return await response.json();
 };
 
-export const createAssignment = async (courseID: number, name: string) => {
+export const createAssignment = async (
+  courseID: number,
+  name: string,
+  due_date?: string | null,
+  rubric?: string | null,
+  file?: File | null,
+) => {
+  const formData = new FormData();
+  formData.append("courseID", String(courseID));
+  formData.append("name", name);
+
+  if (due_date) formData.append("due_date", due_date);
+  if (rubric) formData.append("rubric", rubric);
+  if (file) formData.append("file", file);
+
   const response = await fetch(`${BASE_URL}/assignment/create_assignment`, {
     method: "POST",
-    body: JSON.stringify({
-      courseID,
-      name,
-    }),
-    headers: {
-      "Content-Type": "application/json",
-    },
+    body: formData,
     credentials: "include",
   });
 
   maybeHandleExpire(response);
 
   if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`);
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${response.status}`);
   }
 
   return await response.json();
 };
 
 export const deleteGroup = async (groupID: number) => {
-  await fetch(`${BASE_URL}/delete_group`, {
-    method: "POST",
-    body: JSON.stringify({
-      groupID,
-    }),
+  const response = await fetch(`${BASE_URL}/groups/${groupID}`, {
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
   });
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    const msg = (data && (data.msg || data.message)) || `Response status: ${response.status}`;
+    throw new Error(msg);
+  }
+
+  return await response.json();
 };
 
 export const createReview = async (
@@ -474,7 +567,7 @@ export const createReview = async (
 export const createCriterion = async (
   reviewID: number,
   criterionRowID: number,
-  grade: number,
+  grade: number | null,
   comments: string,
 ) => {
   const response = await fetch(`${BASE_URL}/create_criterion`, {
@@ -513,6 +606,10 @@ export const getReview = async (
 
   maybeHandleExpire(resp);
 
+  if (resp.status === 404) {
+    return null;
+  }
+
   if (!resp.ok) {
     throw new Error(`Response status: ${resp.status}`);
   }
@@ -520,17 +617,41 @@ export const getReview = async (
   return resp;
 };
 
+export const getReceivedReviews = async (
+  assignmentID: number,
+  revieweeID?: number,
+) => {
+  const query = new URLSearchParams({
+    assignmentID: String(assignmentID),
+  });
+
+  if (typeof revieweeID === "number") {
+    query.set("revieweeID", String(revieweeID));
+  }
+
+  const resp = await fetch(`${BASE_URL}/reviews/received?${query.toString()}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  maybeHandleExpire(resp);
+
+  if (!resp.ok) {
+    const data = await resp.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${resp.status}`);
+  }
+
+  return await resp.json();
+};
+
 export const getNextGroupID = async (assignmentID: number) => {
-  const response = await fetch(
-    `${BASE_URL}/next_groupid?assignmentID=${assignmentID}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+  const response = await fetch(`${BASE_URL}/groups/next_groupid?assignmentID=${assignmentID}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    credentials: "include",
+  });
 
   maybeHandleExpire(response);
 
@@ -541,12 +662,8 @@ export const getNextGroupID = async (assignmentID: number) => {
   return await response.json();
 };
 
-export const createGroup = async (
-  assignmentID: number,
-  name: string,
-  id: number,
-) => {
-  const response = await fetch(`${BASE_URL}/create_group`, {
+export const createGroup = async (assignmentID: number, name: string, id: number) => {
+  const response = await fetch(`${BASE_URL}/groups/create`, {
     method: "POST",
     body: JSON.stringify({
       assignmentID,
@@ -560,11 +677,14 @@ export const createGroup = async (
   });
   maybeHandleExpire(response);
 
+  // attempt to read JSON payload (could fail if empty)
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`);
+    const msg = (data && (data.msg || data.message)) || `Response status: ${response.status}`;
+    throw new Error(msg);
   }
 
-  return await response.json();
+  return data;
 };
 
 // Admin - Create Teacher Account
@@ -647,23 +767,33 @@ export async function getDashboard(){
 
   if(!resp.ok){
     throw new Error(`Dashboard fetch failed: ${resp.status}`);
-    return resp.json();
   }
+
+  return await resp.json();
 }
 
 // US9 - edit assignment
 export const editAssignment = async (
   assignmentId: number,
-  updates: { name?: string; due_date?: string | null; rubric?: string | null },
+  updates: {
+    name?: string;
+    due_date?: string | null;
+    rubric?: string | null;
+    file?: File | null;
+  },
 ) => {
+  const formData = new FormData();
+
+  if (updates.name !== undefined) formData.append("name", updates.name);
+  if (updates.due_date) formData.append("due_date", updates.due_date);
+  if (updates.rubric) formData.append("rubric", updates.rubric);
+  if (updates.file) formData.append("file", updates.file);
+
   const response = await fetch(
     `${BASE_URL}/assignment/edit_assignment/${assignmentId}`,
     {
       method: "PATCH",
-      body: JSON.stringify(updates),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      body: formData,
       credentials: "include",
     },
   );
@@ -671,7 +801,8 @@ export const editAssignment = async (
   maybeHandleExpire(response);
 
   if (!response.ok) {
-    throw new Error(`Response status: ${response.status}`);
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${response.status}`);
   }
 
   return await response.json();
@@ -697,6 +828,169 @@ export const deleteAssignment = async (assignmentId: number) => {
   }
 
   return await response.json();
+};
+
+export const downloadAssignmentFile = async (
+  assignmentId: number,
+): Promise<void> => {
+  const response = await fetch(
+    `${BASE_URL}/assignment/download_assignment_file/${assignmentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || "Failed to download assignment file");
+  }
+
+  const filename = getFilenameFromResponse(
+    response,
+    `assignment-${assignmentId}`,
+  );
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+export const submitAssignmentFile = async (
+  assignmentId: number,
+  file: File,
+): Promise<void> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${BASE_URL}/assignment/submit/${assignmentId}`, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || "Submission upload failed");
+  }
+};
+
+export const downloadMySubmissionFile = async (
+  assignmentId: number,
+): Promise<void> => {
+  const response = await fetch(
+    `${BASE_URL}/assignment/download_my_submission/${assignmentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || "Failed to download submission");
+  }
+
+  const filename = getFilenameFromResponse(
+    response,
+    `submission-${assignmentId}`,
+  );
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
+};
+
+export const getMySubmissionInfo = async (assignmentId: number) => {
+  const response = await fetch(
+    `${BASE_URL}/assignment/my_submission/${assignmentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+    }
+  );
+
+  maybeHandleExpire(response);
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || "Failed to load submission info");
+  }
+
+  return await response.json();
+};
+
+export const listAssignmentSubmissions = async (assignmentId: number) => {
+  const response = await fetch(`${BASE_URL}/assignment/submissions/${assignmentId}`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || "Failed to list submissions");
+  }
+
+  return await response.json();
+};
+
+export const downloadStudentSubmissionFile = async (
+  assignmentId: number,
+  studentId: number,
+): Promise<void> => {
+  const response = await fetch(
+    `${BASE_URL}/assignment/download_submission/${assignmentId}/${studentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+    },
+  );
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || "Failed to download student submission");
+  }
+
+  const filename = getFilenameFromResponse(
+    response,
+    `submission-${assignmentId}-${studentId}`,
+  );
+
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.URL.revokeObjectURL(url);
 };
 
 // US26 - Admin User Management
@@ -837,4 +1131,59 @@ export const resetUserPassword = async (userId: number, newPassword: string) => 
   }
 
   return await response.json();
+};
+
+export const getMyProfile = async () => {
+  const response = await fetch(`${BASE_URL}/user/`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const updateMyProfile = async (updates: {
+  username?: string;
+  pronouns?: string;
+  profilePicture?: File | null;
+}) => {
+  const formData = new FormData();
+
+  if (updates.username !== undefined) {
+    formData.append("username", updates.username);
+  }
+
+  if (updates.pronouns !== undefined) {
+    formData.append("pronouns", updates.pronouns);
+  }
+
+  if (updates.profilePicture) {
+    formData.append("profile_picture", updates.profilePicture);
+  }
+
+  const response = await fetch(`${BASE_URL}/user/`, {
+    method: "PUT",
+    body: formData,
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.msg || `Response status: ${response.status}`);
+  }
+
+  return data;
 };

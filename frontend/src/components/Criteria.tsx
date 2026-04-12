@@ -7,7 +7,9 @@ interface props {
     canComment: boolean;
     hasScores: Array<boolean>;
     onCriterionSelect: (row: number, column: number) => void;
-    grades: number[];
+    grades: (number | null)[];
+    comments?: Record<number, string>;
+    onCriterionCommentChange?: (row: number, comment: string) => void;
 }
 
 export default function Criteria(props: props) {
@@ -20,14 +22,15 @@ export default function Criteria(props: props) {
                         question={question} 
                         scoreMax={props.scoreMaxes[i]} 
                         hasScore={props.hasScores[i]}
+                        canComment={props.canComment}
                         onCriterionSelect={props.onCriterionSelect}
+                        onCriterionCommentChange={props.onCriterionCommentChange}
                         questionIndex={i}
                         grade={props.grades[i]}
+                        comment={props.comments?.[i] || ""}
                     />
                 ))}
             </table>
-            {props.canComment && 
-            <textarea className="criteriaText" />}
         </div>
     )
 }

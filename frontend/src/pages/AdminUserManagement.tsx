@@ -252,7 +252,7 @@ export default function AdminUserManagement() {
   };
 
   return (
-    <div className="LoginPage">
+    <div className="AdminUserManagement-Page">
       <div className="AdminUserManagement">
         <h1>User Management</h1>
 

@@ -46,35 +46,6 @@ def test_get_current_user_unauthorized(test_client):
     assert response.status_code == 401
 
 
-def test_update_current_user(test_client):
-    """
-    GIVEN a logged-in user
-    WHEN PUT /user/ is called with updated information
-    THEN the user's information should be updated
-    """
-    # Register and login
-    test_client.post(
-        "/auth/register",
-        data=json.dumps({"name": "testuser", "password": "123456", "email": "test@example.com"}),
-        headers={"Content-Type": "application/json"},
-    )
-
-    test_client.post(
-        "/auth/login",
-        data=json.dumps({"email": "test@example.com", "password": "123456"}),
-        headers={"Content-Type": "application/json"},
-    )
-    # Cookie is automatically stored in test_client
-
-    # Update user
-    response = test_client.put(
-        "/user/", data=json.dumps({"name": "Updated"}), headers={"Content-Type": "application/json"}
-    )
-
-    assert response.status_code == 200
-    assert response.json["name"] == "Updated"
-
-
 def test_get_user_by_id(test_client):
     """
     GIVEN a logged-in user

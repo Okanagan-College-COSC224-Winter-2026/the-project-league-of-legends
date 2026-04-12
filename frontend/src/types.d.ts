@@ -34,6 +34,7 @@ interface GroupTableValue {
 }
 
 interface Criterion {
+  id?: number;
   rubricID: number;
   question: string;
   scoreMax: number;
@@ -46,6 +47,8 @@ interface Assignment {
   courseID: number;
   rubric?: string;
   due_date?: string;
+  attachment_filename?: string | null;
+  attachment_path?: string | null;
 }
 
 interface CourseWithAssignments extends Course {

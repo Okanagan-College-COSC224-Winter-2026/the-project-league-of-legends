@@ -15,6 +15,8 @@ class Assignment(db.Model):
     courseID = db.Column(db.Integer, db.ForeignKey("Course.id"), index=True)
     name = db.Column(db.String(255), nullable=True)
     rubric_text = db.Column("rubric", db.String(255), nullable=True)
+    attachment_filename = db.Column(db.String(255), nullable=True)
+    attachment_path = db.Column(db.String(512), nullable=True)
 
     # NEW: due date field (acceptance criteria: edit/delete allowed before due date)
     due_date = db.Column(db.DateTime, nullable=True, index=True)
@@ -37,11 +39,21 @@ class Assignment(db.Model):
         "Group_Members", back_populates="assignment", cascade="all, delete-orphan", lazy="dynamic"
     )
 
-    def __init__(self, courseID, name, rubric_text, due_date=None):
+    def __init__(
+        self,
+        courseID,
+        name,
+        rubric_text,
+        due_date=None,
+        attachment_filename=None,
+        attachment_path=None,
+    ):
         self.courseID = courseID
         self.name = name
         self.rubric_text = rubric_text
         self.due_date = due_date
+        self.attachment_filename = attachment_filename
+        self.attachment_path = attachment_path
 
     def __repr__(self):
         return f"<Assignment id={self.id} name={self.name}>"
