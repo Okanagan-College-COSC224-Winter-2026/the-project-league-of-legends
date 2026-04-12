@@ -1,4 +1,5 @@
 import os
+import mimetypes
 from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify, request, send_file
@@ -74,6 +75,18 @@ def original_filename_from_path(path):
     if len(parts) == 2 and parts[0].isdigit():
         return parts[1]
     return filename
+
+
+def send_download_file(path, download_name):
+    guessed_type, _ = mimetypes.guess_type(download_name or path)
+    send_kwargs = {
+        "as_attachment": True,
+        "download_name": download_name,
+    }
+    if guessed_type:
+        send_kwargs["mimetype"] = guessed_type
+
+    return send_file(path, **send_kwargs)
 
 
 def submission_to_dict(submission):
@@ -346,10 +359,9 @@ def download_assignment_file(assignment_id):
     if not os.path.exists(assignment.attachment_path):
         return jsonify({"msg": "File not found on server"}), 404
 
-    return send_file(
+    return send_download_file(
         assignment.attachment_path,
-        as_attachment=True,
-        download_name=assignment.attachment_filename,
+        assignment.attachment_filename,
     )
 
 
@@ -503,10 +515,9 @@ def download_my_submission(assignment_id):
     if not submission.path or not os.path.exists(submission.path):
         return jsonify({"msg": "Submission file not found"}), 404
 
-    return send_file(
+    return send_download_file(
         submission.path,
-        as_attachment=True,
-        download_name=original_filename_from_path(submission.path),
+        original_filename_from_path(submission.path),
     )
 
 
@@ -565,8 +576,7 @@ def download_student_submission(assignment_id, student_id):
     if not submission.path or not os.path.exists(submission.path):
         return jsonify({"msg": "Submission file not found"}), 404
 
-    return send_file(
+    return send_download_file(
         submission.path,
-        as_attachment=True,
-        download_name=original_filename_from_path(submission.path),
+        original_filename_from_path(submission.path),
     )

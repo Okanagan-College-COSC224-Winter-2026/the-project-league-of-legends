@@ -135,7 +135,16 @@ export default function ClassHome() {
 
         <div className="ClassHeaderRight">
           {isTeacher() ? (
-            <Button onClick={() => importCSV(id as string)}>
+            <Button onClick={() => importCSV(id as string, {
+              onSuccess: async () => {
+                setStatusType("success");
+                setStatusMessage("Students enrolled successfully.");
+              },
+              onError: (message) => {
+                setStatusType("error");
+                setStatusMessage(message);
+              },
+            })}>
               Add Students via CSV
             </Button>
           ) : null}

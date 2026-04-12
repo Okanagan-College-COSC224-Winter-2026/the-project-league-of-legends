@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { maybeHandleExpire } from "../util/api";
 import ClassCard from "../components/ClassCard";
 import { useNavigate } from "react-router-dom";
-import { apiUrl } from "../util/baseUrl";
+import { apiFetch } from "../util/http";
 import "./Dashboard.css";
 
-const BASE_URL = "";
+const DEFAULT_CLASS_IMAGE =
+  "https://crc.losrios.edu//shared/img/social-1200-630/programs/general-science-social.jpg";
 
 interface AssignmentData {
   id: number;
@@ -53,9 +54,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const resp = await fetch(apiUrl(`${BASE_URL}/dashboard`), {
+        const resp = await apiFetch("/dashboard", {
           method: "GET",
-          credentials: "include",
         });
 
         maybeHandleExpire(resp);
@@ -66,7 +66,7 @@ export default function Dashboard() {
         const classData: ClassData[] = (json.dashboard ?? []).map((c) => ({
           id: c.class_id,
           name: c.class_name,
-          image_url: "/oc_logo.png",
+          image_url: DEFAULT_CLASS_IMAGE,
           students_count: Number(c.students_count ?? 0),
           assignments: (c.assignments ?? []).map((a) => ({
             id: a.id ?? a.assignment_id ?? 0,
@@ -93,13 +93,9 @@ export default function Dashboard() {
     setBusy({ type: "class", id: courseId });
 
     try {
-      const resp = await fetch(
-        apiUrl(`${BASE_URL}/class/delete_class/${courseId}`),
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
+      const resp = await apiFetch(`/class/delete_class/${courseId}`, {
+        method: "DELETE",
+      });
 
       maybeHandleExpire(resp);
 
@@ -130,11 +126,10 @@ export default function Dashboard() {
     setBusy({ type: "assignment", id: assignmentId });
 
     try {
-      const resp = await fetch(
-        apiUrl(`${BASE_URL}/assignment/delete_assignment/${assignmentId}`),
+      const resp = await apiFetch(
+        `/assignment/delete_assignment/${assignmentId}`,
         {
           method: "DELETE",
-          credentials: "include",
         }
       );
 

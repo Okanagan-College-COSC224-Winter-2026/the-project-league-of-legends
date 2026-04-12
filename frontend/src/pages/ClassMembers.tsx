@@ -28,10 +28,7 @@ export default function ClassMembers() {
   const [className, setClassName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const run = async () => {
+  const loadMembers = async (cancelled = false) => {
       setError(null);
 
       if (!id) {
@@ -62,7 +59,10 @@ export default function ClassMembers() {
       }
     };
 
-    run();
+  useEffect(() => {
+    let cancelled = false;
+
+    loadMembers(cancelled);
 
     return () => {
       cancelled = true;
@@ -78,7 +78,7 @@ export default function ClassMembers() {
 
         <div className="ClassHeaderRight">
           {isTeacher() ? (
-            <Button onClick={() => importCSV(id as string)}>
+            <Button onClick={() => importCSV(id as string, { onSuccess: () => loadMembers(false) })}>
               Add Students via CSV
             </Button>
           ) : null}

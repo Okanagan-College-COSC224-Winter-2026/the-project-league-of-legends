@@ -1,9 +1,9 @@
+import { Link, useLocation } from "react-router-dom";
 import { logout, isAdmin, isTeacher } from "../util/login";
 import "./Sidebar.css";
 
 export default function Sidebar() {
-  // Check which page we are on
-  const location = window.location.pathname;
+  const location = useLocation().pathname;
 
   return (
     <div className="Sidebar">
@@ -12,7 +12,7 @@ export default function Sidebar() {
       </div>
 
       <div className="SidebarTop">
-        <SidebarRow onClick={() => logout()} href="#" selected={false}>
+        <SidebarRow onClick={() => logout()} href="/" selected={false}>
           Logout
         </SidebarRow>
 
@@ -26,14 +26,14 @@ export default function Sidebar() {
         )}
 
         {isTeacher() && (
-                  <SidebarRow selected={location === "/classes/create"} href="/classes/create">
+        <SidebarRow selected={location === "/classes/create"} href="/classes/create">
           Create Class
         </SidebarRow>
         )}
       
       {isAdmin() && (
-        <SidebarRow selected={location === "/admin/create-teacher"} href="/admin/create-teacher">
-          Student Enrollment
+        <SidebarRow selected={location === "/create-teacher"} href="/create-teacher">
+          Create Teacher
         </SidebarRow>
       )}
 
@@ -49,8 +49,8 @@ export default function Sidebar() {
 
         {isAdmin() && (
           <SidebarRow 
-            selected={location === '/admin/users'} 
-            href="/admin/users"
+            selected={location === '/manage-users'} 
+            href="/manage-users"
           >
             Manage Users
           </SidebarRow>
@@ -73,7 +73,7 @@ function SidebarRow(props: SidebarRowProps) {
       className={`SidebarRow ${props.selected ? "selected" : ""}`}
       onClick={props.onClick}
     >
-      <a href={props.selected ? "#" : props.href}>{props.children}</a>
+      <Link to={props.href}>{props.children}</Link>
     </div>
   );
 }

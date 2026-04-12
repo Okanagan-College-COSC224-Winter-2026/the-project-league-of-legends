@@ -18,6 +18,8 @@
   margin: 0px 20px;
 
   border-bottom: 2px solid transparent;
+  text-decoration: none;
+  color: inherit;
 }
 
 .TabNav .Tab:hover {

@@ -50,7 +50,7 @@ function AppContent() {
           />
 
           <Route
-            path="/admin/create-teacher"
+            path="/create-teacher"
             element={
               <ProtectedRoute>
                 <CreateTeacher />
@@ -59,7 +59,7 @@ function AppContent() {
           />
 
           <Route
-            path="/admin/users"
+            path="/manage-users"
             element={
               <ProtectedRoute>
                 <AdminUserManagement />

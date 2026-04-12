@@ -1,6 +1,4 @@
-import { apiUrl } from "./baseUrl";
-
-const BASE_URL = "";
+import { apiFetch } from "./http";
 // Token is now stored in httponly cookie, so we don't need getToken anymore
 // But we keep user info (role, name, user_id) in localStorage for UI purposes
 export const getToken = () => {
@@ -42,9 +40,8 @@ export const hasRole = (...roles: string[]) => {
 export const logout = async () => {
   // Call backend logout endpoint to clear the cookie
   try {
-    await fetch(apiUrl(`${BASE_URL}/auth/logout`), {
+    await apiFetch("/auth/logout", {
       method: 'POST',
-      credentials: 'include'  // Include cookies in request
     });
   } catch (error) {
     console.error('Logout error:', error);
