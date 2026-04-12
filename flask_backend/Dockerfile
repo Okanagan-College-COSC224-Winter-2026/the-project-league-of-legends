@@ -15,8 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
-# Copy dependency files
+# Copy dependency files and package source needed for editable install
 COPY setup.py requirements-ci.txt ./
+COPY api/ /app/api/
 
 # Install Python dependencies in a virtual environment
 # This allows us to copy only the venv to the final stage, keeping image small
@@ -48,9 +49,14 @@ WORKDIR /app
 # Copy virtual environment from builder stage
 COPY --from=builder /opt/venv /opt/venv
 
-# Copy application code
+# Copy application code required by the editable install and Flask entrypoint
 COPY api/ /app/api/
+
+# Copy runtime entrypoint
 COPY run_gunicorn.sh /app/run_gunicorn.sh
+
+# Normalize Windows CRLF line endings so /bin/sh can execute the script reliably
+RUN sed -i 's/\r$//' /app/run_gunicorn.sh
 
 # Ensure entrypoint script is executable
 RUN chmod +x /app/run_gunicorn.sh
@@ -63,6 +69,7 @@ USER flask
 
 # Activate virtual environment
 ENV PATH="/opt/venv/bin:$PATH"
+ENV HOME="/app"
 
 # Set Python to run in unbuffered mode for better logging
 ENV PYTHONUNBUFFERED=1
@@ -89,5 +96,5 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/hello').read()"
 
-# Run entrypoint script that initializes the DB schema then launches Gunicorn
-CMD ["/app/run_gunicorn.sh"]
+# Run via sh so Windows line endings in the repo do not break container startup
+CMD ["sh", "/app/run_gunicorn.sh"]

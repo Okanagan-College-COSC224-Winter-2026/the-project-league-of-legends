@@ -2,6 +2,7 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import "./Profile.css";
 import { getMyProfile, updateMyProfile } from "../util/api";
+import { apiUrl } from "../util/baseUrl";
 
 type ProfileData = {
   id: number;
@@ -146,7 +147,7 @@ export default function Profile() {
   const profileImageSrc = selectedImage
     ? URL.createObjectURL(selectedImage)
     : profile?.profile_picture
-    ? `http://localhost:5000/user/profile-picture/${profile.profile_picture}`
+    ? apiUrl(`/user/profile-picture/${profile.profile_picture}`)
     : "https://placehold.co/200x200";
 
   return (

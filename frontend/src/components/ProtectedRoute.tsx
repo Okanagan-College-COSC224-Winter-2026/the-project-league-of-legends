@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../util/baseUrl";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -14,7 +15,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     useEffect(() => {
         ;(async () => {
             try {
-                const response = await fetch(`${BASE_URL}/user`, {
+                const response = await fetch(apiUrl(`${BASE_URL}/user`), {
                     method: "GET",
                     credentials: "include",
                 });

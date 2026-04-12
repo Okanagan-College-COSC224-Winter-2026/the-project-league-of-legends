@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { maybeHandleExpire } from "../util/api";
 import ClassCard from "../components/ClassCard";
 import { useNavigate } from "react-router-dom";
+import { apiUrl } from "../util/baseUrl";
 import "./Dashboard.css";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 interface AssignmentData {
   id: number;
@@ -52,7 +53,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const resp = await fetch(`${BASE_URL}/dashboard`, {
+        const resp = await fetch(apiUrl(`${BASE_URL}/dashboard`), {
           method: "GET",
           credentials: "include",
         });
@@ -93,7 +94,7 @@ export default function Dashboard() {
 
     try {
       const resp = await fetch(
-        `${BASE_URL}/class/delete_class/${courseId}`,
+        apiUrl(`${BASE_URL}/class/delete_class/${courseId}`),
         {
           method: "DELETE",
           credentials: "include",
@@ -130,7 +131,7 @@ export default function Dashboard() {
 
     try {
       const resp = await fetch(
-        `${BASE_URL}/assignment/delete_assignment/${assignmentId}`,
+        apiUrl(`${BASE_URL}/assignment/delete_assignment/${assignmentId}`),
         {
           method: "DELETE",
           credentials: "include",

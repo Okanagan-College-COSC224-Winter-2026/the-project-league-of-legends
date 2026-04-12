@@ -4,8 +4,9 @@
 //  Backend route we added: GET /class/<class_id>/members
 
 import { didExpire, removeToken } from "./login";
+import { apiUrl } from "./baseUrl";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "";
 
 // export const getProfile = async (id: string) => {
 //   // TODO
@@ -42,7 +43,7 @@ function getFilenameFromResponse(
 
 export const tryLogin = async (email: string, password: string) => {
   try {
-    const response = await fetch(`${BASE_URL}/auth/login`, {
+    const response = await fetch(apiUrl(`${BASE_URL}/auth/login`), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export async function tryRegister(
   email: string,
   password: string,
 ): Promise<{ ok: boolean; msg?: string }> {
-  const res = await fetch(`${BASE_URL}/auth/register`, {
+  const res = await fetch(apiUrl(`${BASE_URL}/auth/register`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -94,7 +95,7 @@ export async function tryRegister(
 }
 
 export const createClass = async (name: string) => {
-  const response = await fetch(`${BASE_URL}/class/create_class`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/class/create_class`), {
     method: "POST",
     body: JSON.stringify({
       name,
@@ -120,7 +121,7 @@ export const createClass = async (name: string) => {
 
 export const listClasses = async () => {
   // TODO get session info and whatnot
-  const resp = await fetch(`${BASE_URL}/class/classes`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/class/classes`), {
     method: "GET",
     credentials: "include", // Include cookies (JWT token)
   });
@@ -147,7 +148,7 @@ export const searchCourses = async (
   }
 
   const resp = await fetch(
-    `${BASE_URL}/class/search_course?${params.toString()}`,
+    apiUrl(`${BASE_URL}/class/search_course?${params.toString()}`),
     {
       method: "GET",
       credentials: "include",
@@ -167,7 +168,7 @@ export const importStudentsForCourse = async (
   courseID: number,
   students: string,
 ) => {
-  const response = await fetch(`${BASE_URL}/class/enroll_students`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/class/enroll_students`), {
     method: "POST",
     body: JSON.stringify({
       students,
@@ -187,7 +188,7 @@ export const importStudentsForCourse = async (
 };
 
 export const listAssignments = async (classId: string) => {
-  const resp = await fetch(`${BASE_URL}/assignment/` + classId, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/assignment/` + classId), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -205,7 +206,7 @@ export const listAssignments = async (classId: string) => {
 };
 
 export const getAssignment = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/assignment/details/` + assignmentId, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/assignment/details/` + assignmentId), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -224,7 +225,7 @@ export const getAssignment = async (assignmentId: number) => {
 
 export const listStuGroup = async (assignmentId: number, studentId: number) => {
   const resp = await fetch(
-    `${BASE_URL}/groups/list_stu_groups/` + assignmentId + "/" + studentId,
+    apiUrl(`${BASE_URL}/groups/list_stu_groups/` + assignmentId + "/" + studentId),
     {
       method: "GET",
       headers: {
@@ -255,7 +256,7 @@ export const listStuGroup = async (assignmentId: number, studentId: number) => {
 
 export const listGroups = async (assignmentId: number) => {
   // new endpoint under /groups prefix
-  const resp = await fetch(`${BASE_URL}/groups/` + assignmentId, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/groups/` + assignmentId), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -272,7 +273,7 @@ export const listGroups = async (assignmentId: number) => {
 };
 
 export const listUnassignedGroups = async (assignmentId: number) => {
-  const resp = await fetch(`${BASE_URL}/groups/list_ua_groups/${assignmentId}`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/groups/list_ua_groups/${assignmentId}`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -291,7 +292,7 @@ export const listUnassignedGroups = async (assignmentId: number) => {
 };
 
 export const listCourseMembers = async (classId: string) => {
-  const resp = await fetch(`${BASE_URL}/class/${classId}/members`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/class/${classId}/members`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -313,7 +314,7 @@ export const listGroupMembers = async (
   groupID: number,
 ) => {
   const resp = await fetch(
-    `${BASE_URL}/groups/list_group_members/` + assignmentId + "/" + groupID,
+    apiUrl(`${BASE_URL}/groups/list_group_members/` + assignmentId + "/" + groupID),
     {
       method: "GET",
       headers: {
@@ -334,7 +335,7 @@ export const listGroupMembers = async (
 
 export const getUserId = async (): Promise<number> => {
   // The backend provides current user info at /user/ (requires JWT cookie)
-  const resp = await fetch(`${BASE_URL}/user/`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/user/`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -356,7 +357,7 @@ export const getUserId = async (): Promise<number> => {
 };
 
 export const saveGroups = async (groupID: number, userID: number, assignmentID: number) => {
-  const response = await fetch(`${BASE_URL}/groups/save_groups`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/groups/save_groups`), {
     method: "POST",
     body: JSON.stringify({
       groupID,
@@ -380,7 +381,7 @@ export const saveGroups = async (groupID: number, userID: number, assignmentID: 
 };
 
 export const getCriteria = async (rubricID: number) => {
-  const resp = await fetch(`${BASE_URL}/criteria?rubricID=${rubricID}`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/criteria?rubricID=${rubricID}`), {
     credentials: "include",
   });
 
@@ -403,7 +404,7 @@ export const createCriteria = async (
   scoreMax: number,
   hasScore: boolean = true,
 ) => {
-  const response = await fetch(`${BASE_URL}/create_criteria`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/create_criteria`), {
     method: "POST",
     body: JSON.stringify({
       rubricID,
@@ -430,7 +431,7 @@ export const createRubric = async (
   assignmentID: number,
   canComment: boolean,
 ): Promise<{ id: number }> => {
-  const response = await fetch(`${BASE_URL}/create_rubric`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/create_rubric`), {
     method: "POST",
     body: JSON.stringify({
       assignmentID,
@@ -452,7 +453,7 @@ export const createRubric = async (
 };
 
 export const getRubric = async (rubricID: number) => {
-  const resp = await fetch(`${BASE_URL}/rubric?rubricID=${rubricID}`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/rubric?rubricID=${rubricID}`), {
     credentials: "include",
   });
 
@@ -470,7 +471,7 @@ export const getRubric = async (rubricID: number) => {
 };
 
 export const deleteRubric = async (rubricID: number) => {
-  const response = await fetch(`${BASE_URL}/delete_rubric`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/delete_rubric`), {
     method: "POST",
     body: JSON.stringify({ rubricID }),
     headers: {
@@ -503,7 +504,7 @@ export const createAssignment = async (
   if (rubric) formData.append("rubric", rubric);
   if (file) formData.append("file", file);
 
-  const response = await fetch(`${BASE_URL}/assignment/create_assignment`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/assignment/create_assignment`), {
     method: "POST",
     body: formData,
     credentials: "include",
@@ -520,7 +521,7 @@ export const createAssignment = async (
 };
 
 export const deleteGroup = async (groupID: number) => {
-  const response = await fetch(`${BASE_URL}/groups/${groupID}`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/groups/${groupID}`), {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -543,7 +544,7 @@ export const createReview = async (
   reviewerID: number,
   revieweeID: number,
 ) => {
-  const response = await fetch(`${BASE_URL}/create_review`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/create_review`), {
     method: "POST",
     body: JSON.stringify({
       assignmentID,
@@ -570,7 +571,7 @@ export const createCriterion = async (
   grade: number | null,
   comments: string,
 ) => {
-  const response = await fetch(`${BASE_URL}/create_criterion`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/create_criterion`), {
     method: "POST",
     body: JSON.stringify({
       reviewID,
@@ -598,7 +599,7 @@ export const getReview = async (
   revieweeID: number,
 ) => {
   const resp = await fetch(
-    `${BASE_URL}/review?assignmentID=${assignmentID}&reviewerID=${reviewerID}&revieweeID=${revieweeID}`,
+    apiUrl(`${BASE_URL}/review?assignmentID=${assignmentID}&reviewerID=${reviewerID}&revieweeID=${revieweeID}`),
     {
       credentials: "include",
     },
@@ -629,7 +630,7 @@ export const getReceivedReviews = async (
     query.set("revieweeID", String(revieweeID));
   }
 
-  const resp = await fetch(`${BASE_URL}/reviews/received?${query.toString()}`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/reviews/received?${query.toString()}`), {
     method: "GET",
     credentials: "include",
   });
@@ -645,7 +646,7 @@ export const getReceivedReviews = async (
 };
 
 export const getNextGroupID = async (assignmentID: number) => {
-  const response = await fetch(`${BASE_URL}/groups/next_groupid?assignmentID=${assignmentID}`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/groups/next_groupid?assignmentID=${assignmentID}`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -663,7 +664,7 @@ export const getNextGroupID = async (assignmentID: number) => {
 };
 
 export const createGroup = async (assignmentID: number, name: string, id: number) => {
-  const response = await fetch(`${BASE_URL}/groups/create`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/groups/create`), {
     method: "POST",
     body: JSON.stringify({
       assignmentID,
@@ -693,7 +694,7 @@ export const createTeacherAccount = async (
   email: string,
   password: string,
 ) => {
-  const response = await fetch(`${BASE_URL}/admin/users/create`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users/create`), {
     method: "POST",
     body: JSON.stringify({
       name,
@@ -723,7 +724,7 @@ export const changePassword = async (
   currentPassword: string,
   newPassword: string,
 ) => {
-  const response = await fetch(`${BASE_URL}/user/password`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/user/password`), {
     method: "PATCH",
     body: JSON.stringify({
       current_password: currentPassword,
@@ -759,7 +760,7 @@ export const changePassword = async (
 // };
 
 export async function getDashboard(){
-  const resp = await fetch(`${BASE_URL}/dashboard`, {
+  const resp = await fetch(apiUrl(`${BASE_URL}/dashboard`), {
     method:"GET",
     credentials:"include",
     headers:{'Content-type':'application/json'},
@@ -790,7 +791,7 @@ export const editAssignment = async (
   if (updates.file) formData.append("file", updates.file);
 
   const response = await fetch(
-    `${BASE_URL}/assignment/edit_assignment/${assignmentId}`,
+    apiUrl(`${BASE_URL}/assignment/edit_assignment/${assignmentId}`),
     {
       method: "PATCH",
       body: formData,
@@ -811,7 +812,7 @@ export const editAssignment = async (
 // US9 - delete assignment
 export const deleteAssignment = async (assignmentId: number) => {
   const response = await fetch(
-    `${BASE_URL}/assignment/delete_assignment/${assignmentId}`,
+    apiUrl(`${BASE_URL}/assignment/delete_assignment/${assignmentId}`),
     {
       method: "DELETE",
       headers: {
@@ -834,7 +835,7 @@ export const downloadAssignmentFile = async (
   assignmentId: number,
 ): Promise<void> => {
   const response = await fetch(
-    `${BASE_URL}/assignment/download_assignment_file/${assignmentId}`,
+    apiUrl(`${BASE_URL}/assignment/download_assignment_file/${assignmentId}`),
     {
       method: "GET",
       credentials: "include",
@@ -871,7 +872,7 @@ export const submitAssignmentFile = async (
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(`${BASE_URL}/assignment/submit/${assignmentId}`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/assignment/submit/${assignmentId}`), {
     method: "POST",
     body: formData,
     credentials: "include",
@@ -889,7 +890,7 @@ export const downloadMySubmissionFile = async (
   assignmentId: number,
 ): Promise<void> => {
   const response = await fetch(
-    `${BASE_URL}/assignment/download_my_submission/${assignmentId}`,
+    apiUrl(`${BASE_URL}/assignment/download_my_submission/${assignmentId}`),
     {
       method: "GET",
       credentials: "include",
@@ -921,7 +922,7 @@ export const downloadMySubmissionFile = async (
 
 export const getMySubmissionInfo = async (assignmentId: number) => {
   const response = await fetch(
-    `${BASE_URL}/assignment/my_submission/${assignmentId}`,
+    apiUrl(`${BASE_URL}/assignment/my_submission/${assignmentId}`),
     {
       method: "GET",
       credentials: "include",
@@ -943,7 +944,7 @@ export const getMySubmissionInfo = async (assignmentId: number) => {
 };
 
 export const listAssignmentSubmissions = async (assignmentId: number) => {
-  const response = await fetch(`${BASE_URL}/assignment/submissions/${assignmentId}`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/assignment/submissions/${assignmentId}`), {
     method: "GET",
     credentials: "include",
   });
@@ -963,7 +964,7 @@ export const downloadStudentSubmissionFile = async (
   studentId: number,
 ): Promise<void> => {
   const response = await fetch(
-    `${BASE_URL}/assignment/download_submission/${assignmentId}/${studentId}`,
+    apiUrl(`${BASE_URL}/assignment/download_submission/${assignmentId}/${studentId}`),
     {
       method: "GET",
       credentials: "include",
@@ -996,7 +997,7 @@ export const downloadStudentSubmissionFile = async (
 // US26 - Admin User Management
 // List all users
 export const listAllUsers = async () => {
-  const response = await fetch(`${BASE_URL}/admin/users`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -1022,7 +1023,7 @@ export const createUser = async (
   role: string,
   must_change_password: boolean = false
 ) => {
-  const response = await fetch(`${BASE_URL}/admin/users/create`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users/create`), {
     method: "POST",
     body: JSON.stringify({
       name,
@@ -1052,7 +1053,7 @@ export const updateUserDetails = async (
   userId: number,
   updates: { name?: string; email?: string }
 ) => {
-  const response = await fetch(`${BASE_URL}/admin/users/${userId}`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users/${userId}`), {
     method: "PUT",
     body: JSON.stringify(updates),
     headers: {
@@ -1073,7 +1074,7 @@ export const updateUserDetails = async (
 
 // Update user role
 export const updateUserRole = async (userId: number, role: string) => {
-  const response = await fetch(`${BASE_URL}/admin/users/${userId}/role`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users/${userId}/role`), {
     method: "PUT",
     body: JSON.stringify({ role }),
     headers: {
@@ -1094,7 +1095,7 @@ export const updateUserRole = async (userId: number, role: string) => {
 
 // Delete a user
 export const deleteUser = async (userId: number) => {
-  const response = await fetch(`${BASE_URL}/admin/users/${userId}`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users/${userId}`), {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -1114,7 +1115,7 @@ export const deleteUser = async (userId: number) => {
 
 // Reset a user's password
 export const resetUserPassword = async (userId: number, newPassword: string) => {
-  const response = await fetch(`${BASE_URL}/admin/users/${userId}/password`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/admin/users/${userId}/password`), {
     method: "PUT",
     body: JSON.stringify({ password: newPassword }),
     headers: {
@@ -1134,7 +1135,7 @@ export const resetUserPassword = async (userId: number, newPassword: string) => 
 };
 
 export const getMyProfile = async () => {
-  const response = await fetch(`${BASE_URL}/user/`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/user/`), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -1171,7 +1172,7 @@ export const updateMyProfile = async (updates: {
     formData.append("profile_picture", updates.profilePicture);
   }
 
-  const response = await fetch(`${BASE_URL}/user/`, {
+  const response = await fetch(apiUrl(`${BASE_URL}/user/`), {
     method: "PUT",
     body: formData,
     credentials: "include",
