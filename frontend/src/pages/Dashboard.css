@@ -1,0 +1,33 @@
+.Dashboard {
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.DashboardGrid {
+  display: flex;
+  flex-wrap: wrap;        /* Allows cards to wrap to next row */
+  gap: 20px;              /* Space between cards */
+  justify-content: flex-start; /* Align left */
+}
+
+.ClassWrapper {
+  display: flex;
+  flex-direction: column; /* Card on top, assignments below */
+  width: 250px;           /* Fixed card width */
+  flex-shrink: 0;         /* Prevent cards from shrinking too small */
+}
+
+.AssignmentList {
+  list-style: disc;
+  padding-left: 15px;
+  margin-top: 8px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.AssignmentList li {
+  margin-bottom: 4px;
+}

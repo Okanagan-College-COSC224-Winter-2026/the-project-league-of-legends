@@ -4,6 +4,8 @@ import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from .controllers.dashboard_controller import bp as dashboard_bp
+
 
 from .cli import init_app
 from .controllers import (
@@ -13,6 +15,9 @@ from .controllers import (
     fake_api_controller,
     user_controller,
     assignment_controller,
+    rubric_controller,
+    review_controller,
+    group_controller,
 )
 from .models.db import db, ma
 
@@ -56,6 +61,7 @@ def create_app(test_config=None):
         ),  # Strict in production for maximum security
         JWT_ACCESS_COOKIE_PATH="/",
         JWT_COOKIE_DOMAIN=os.environ.get("JWT_COOKIE_DOMAIN", None),
+        UPLOAD_FOLDER=os.path.join(app.instance_path, "uploads"),
     )
 
     if test_config is None:
@@ -107,6 +113,10 @@ def create_app(test_config=None):
     app.register_blueprint(admin_controller.bp)
     app.register_blueprint(class_controller.bp)
     app.register_blueprint(assignment_controller.bp)
+    app.register_blueprint(rubric_controller.bp)
+    app.register_blueprint(group_controller.bp)
+    app.register_blueprint(review_controller.bp)
     app.register_blueprint(fake_api_controller.fake)
+    app.register_blueprint(dashboard_bp)
 
     return app

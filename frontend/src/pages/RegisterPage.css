@@ -23,13 +23,13 @@
   margin: 8px;
   padding-bottom: 16px;
 
-  height: 50%;
+  height: 70%;
   width: 30%;
 
   background-color: #fff;
 
   min-height: 300px;
-  max-height: 400px;
+  max-height: 700px;
 }
 
 .RegisterInner {
@@ -41,15 +41,17 @@
 }
 
 .RegisterButton {
-  margin-bottom: 16px;
+  margin-bottom: 36px;
+  margin-top:25px
 }
 
 .RegisterInputs {
+  flex:1;
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 
   width: 100%;
 }
@@ -61,4 +63,10 @@
   justify-content: center;
 
   margin: 12px;
+}
+
+.ErrorMessage {
+  color: red;
+  margin-bottom: 10px;
+  font-weight: 500;
 }

@@ -6,6 +6,7 @@ import StatusMessage from '../components/StatusMessage';
 import { tryRegister } from '../util/api';
 import { useNavigate } from 'react-router-dom';
 
+
 export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,15 +17,21 @@ export default function RegisterPage() {
 
   
   const attemptRegister = async () => {
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+  setError("");
 
-    if (await tryRegister(name, email, password)) {
-      navigate('/');
-    }
+  if (password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
   }
+
+  const result = await tryRegister(name, email, password);
+
+  if (result.ok) {
+    navigate("/");
+  } else {
+    setError(result.msg || "Registration failed");
+  }
+};
 
   return (
     <div className="RegisterPage">

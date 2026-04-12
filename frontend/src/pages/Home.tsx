@@ -1,41 +1,55 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ClassCard from "../components/ClassCard";
 
-import './Home.css'
-import { listClasses, listAssignments } from "../util/api";
-import { isTeacher, isAdmin } from "../util/login";
+import "./Home.css";
+import { listAssignments, searchCourses } from "../util/api";
 
 export default function Home() {
-  const [courses, setCourses] = useState<CourseWithAssignments[]>([]);
+  const [allCourses, setAllCourses] = useState<CourseWithAssignments[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<
+    CourseWithAssignments[]
+  >([]);
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
 
+  // Fetch all courses with assignments on mount
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       try {
-        const coursesResp = await listClasses();
-        
-        // Fetch assignments for each course
+        const searchResults = await searchCourses("");
+
         const coursesWithAssignments = await Promise.all(
-          coursesResp.map(async (course: Course) => {
+          searchResults.map(async (course: CourseSearchResult) => {
             try {
               const assignments = await listAssignments(String(course.id));
               return {
-                ...course,
+                id: course.id,
+                name: course.name,
+                teacherID: course.teacherID,
+                teacher_name: course.teacher_name,
                 assignments: assignments || [],
-                assignmentCount: assignments?.length || 0
+                assignmentCount: assignments?.length || 0,
               };
             } catch (error) {
-              console.error(`Error fetching assignments for course ${course.id}:`, error);
+              console.error(
+                `Error fetching assignments for course ${course.id}:`,
+                error,
+              );
               return {
-                ...course,
+                id: course.id,
+                name: course.name,
+                teacherID: course.teacherID,
+                teacher_name: course.teacher_name,
                 assignments: [],
-                assignmentCount: 0
+                assignmentCount: 0,
               };
             }
-          })
+          }),
         );
-        
-        setCourses(coursesWithAssignments);
+
+        setAllCourses(coursesWithAssignments);
+        setFilteredCourses(coursesWithAssignments);
       } catch (error) {
         console.error("Error fetching courses:", error);
       } finally {
@@ -43,6 +57,36 @@ export default function Home() {
       }
     })();
   }, []);
+
+  // Debounced search — filter via API when query changes
+  const doSearch = useCallback(
+    async (q: string) => {
+      if (!q.trim()) {
+        setFilteredCourses(allCourses);
+        return;
+      }
+      setSearching(true);
+      try {
+        const results = await searchCourses(q);
+        const matchedIds = new Set(
+          results.map((r: CourseSearchResult) => r.id),
+        );
+        setFilteredCourses(allCourses.filter((c) => matchedIds.has(c.id)));
+      } catch (err) {
+        console.error("Search failed:", err);
+      } finally {
+        setSearching(false);
+      }
+    },
+    [allCourses],
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      doSearch(query);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query, doSearch]);
 
   if (loading) {
     return (
@@ -57,33 +101,49 @@ export default function Home() {
     <div className="Home">
       <h1>Peer Review Dashboard</h1>
 
-      <div className="Classes">
-        {
-          courses.map((course) => {
-            const assignmentText = `${course.assignmentCount || 0} assignments`;
-            
-            return (
-              <ClassCard
-                key={course.id}
-                image="https://crc.losrios.edu//shared/img/social-1200-630/programs/general-science-social.jpg"
-                name={course.name}
-                subtitle={assignmentText}
-                onclick={() => {
-                  window.location.href = `/classes/${course.id}/home`
-                }}
-              />
-            )
-          })
-        }
+      <div className="CourseSearchBar">
+        <input
+          type="text"
+          className="CourseSearchInput"
+          placeholder="Search courses by name..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        {query && (
+          <button
+            className="CourseSearchClear"
+            onClick={() => setQuery("")}
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
-        {isTeacher() && <div className="ClassCreateButton" onClick={() => window.location.href = '/classes/create'}>
-          <h2>Create Class</h2>
-        </div>}
-        
-        {isAdmin() && <div className="ClassCreateButton" onClick={() => window.location.href = '/admin/create-teacher'}>
-          <h2>Create Teacher</h2>
-        </div>}
+      {searching && <p className="SearchingIndicator">Searching...</p>}
+
+      {!searching && query && filteredCourses.length === 0 && (
+        <p className="NoCoursesFound">No courses found for "{query}".</p>
+      )}
+
+      <div className="Classes">
+        {filteredCourses.map((course) => {
+          const assignmentText = `${course.assignmentCount || 0} assignments`;
+
+          return (
+            <ClassCard
+              key={course.id}
+              image="https://crc.losrios.edu//shared/img/social-1200-630/programs/general-science-social.jpg"
+              name={course.name}
+              subtitle={assignmentText}
+              onclick={() => {
+                window.location.href = `/classes/${course.id}/home`;
+              }}
+            />
+          );
+        })}
+
       </div>
     </div>
-  )
+  );
 }

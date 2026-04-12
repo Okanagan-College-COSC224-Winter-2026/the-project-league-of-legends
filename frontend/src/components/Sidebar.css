@@ -28,7 +28,8 @@
   flex-direction: column;
   
   width: 100%;
-  height: 100%;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .SidebarBottom {
@@ -37,7 +38,7 @@
   justify-content: flex-end;
   
   width: 100%;
-  height: 100%;
+  flex-shrink: 0;
 }
 
 .SidebarRow {

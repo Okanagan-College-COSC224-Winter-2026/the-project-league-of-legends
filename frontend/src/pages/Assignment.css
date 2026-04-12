@@ -1,23 +1,23 @@
 .assignmentTables {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 }
+
 .table {
-    width: 50%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border: 1px solid var(--background-secondary);
-    /* background-color: var(--background-secondary); */
-    margin: 0 10px;
+  width: 50%;
+  min-width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--background-secondary);
+  margin: 0 10px;
 }
 
 .table .groupNames {
   align-items: center;
   justify-content: center;
-
   background: #eee;
   padding: 4px 0;
 }
@@ -29,7 +29,6 @@
   color: #fff;
   font-size: 16px;
   cursor: pointer;
-
   transition: all 0.1s ease-in-out;
 }
 
@@ -37,19 +36,18 @@
   filter: brightness(0.9);
 }
 
-.AssignmentPage  button,
+.AssignmentPage button,
 .table .StudentName {
-  margin: 10px;
-  margin-left: 20px;
+  margin: 5px;
+  margin-right: 10px;
 }
 
 .table tr {
   width: 100%;
-  display:flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 90px auto;
   align-items: center;
-  justify-content: space-between;
-
+  gap: 8px;
   transition: all 0.1s ease-in-out;
 }
 
@@ -58,23 +56,22 @@
 }
 
 .table th {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    border-bottom: 1px solid var(--background-secondary);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--background-secondary);
 }
 
 .groupNames {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-
-    position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 420px;
+  position: relative;
 }
 
 .GroupArrow {
@@ -90,18 +87,227 @@
   height: 100%;
 }
 
-.groupNames.selected .GroupArrow {
+.groupNames.expanded .GroupArrow {
   transform: rotate(90deg);
 }
 
 .AssignmentHeader {
+  margin-bottom: 1rem;
+}
+
+.assignmentPage {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem 0;
+}
+
+.assignmentMainCard,
+.studentCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.assignmentSectionHeader {
+  margin-bottom: 0.85rem;
+}
+
+.assignmentSectionHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.assignmentRubricDisplay,
+.assignmentRubric {
+  width: 100%;
+}
+
+.studentAssignmentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.assignmentHelperText {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #5f6b7a;
+  line-height: 1.45;
+}
+
+.assignmentFileInput {
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.selectedFileName {
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+  color: #374151;
+  word-break: break-word;
+}
+
+.assignmentButtonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.assignmentActionButton,
+.assignmentSecondaryButton {
+  border: none;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.assignmentActionButton {
+  background: #2563eb;
+  color: white;
+}
+
+.assignmentSecondaryButton {
+  background: #eef2ff;
+  color: #1f3a8a;
+}
+
+.assignmentActionButton:hover,
+.assignmentSecondaryButton:hover {
+  transform: translateY(-1px);
+}
+
+.assignmentActionButton:disabled,
+.assignmentSecondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.groupMembersList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.groupMemberOption {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  background: #fafafa;
+}
+
+.groupMemberOption.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.assignmentStatusMessage {
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: #f8fafc;
+  border: 1px solid #dbeafe;
+  color: #1e3a8a;
+}
+
+.teacherSubmissionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.teacherSubmissionRow {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+.teacherSubmissionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.teacherSubmissionStudent {
+  margin: 0;
+  font-weight: 600;
+}
+
+.teacherSubmissionFile {
+  margin: 0;
+  color: #374151;
+}
+
+.teacherSubmissionDate {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
 }
 
 .groupNameInput{
   width: 15%;
+}
+
+.groupMembers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.revieweeOption {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: fit-content;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+.revieweeOption:hover {
+  background-color: var(--background-secondary);
+}
+
+.revieweeLabel {
+  cursor: pointer;
+}
+
+.revieweeOption.isCurrentUser {
+  color: var(--text-secondary);
+  background-color: var(--background-secondary);
+  opacity: 0.8;
+}
+
+.revieweeOption.isCurrentUser .revieweeLabel {
+  cursor: not-allowed;
+  font-style: italic;
+}
+
+.revieweeOption.isCurrentUser input {
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .assignmentButtonRow {
+    flex-direction: column;
+  }
+
+  .assignmentActionButton,
+  .assignmentSecondaryButton {
+    width: 100%;
+  }
 }

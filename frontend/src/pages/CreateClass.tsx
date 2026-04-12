@@ -9,25 +9,28 @@ export default function CreateClass() {
   const [name, setName] = useState('')
   const [statusMessage, setStatusMessage] = useState('')
   const [statusType, setStatusType] = useState<'error' | 'success'>('error')
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const attemptCreateClass = async () => {
-    try {
-      setStatusMessage('');
-      const response = await createClass(name);
-      
-      if (!response.ok) {
-        throw new Error('Failed to create class');
-      }
-
-      setStatusType('success');
-      setStatusMessage('Class created successfully!');
-      setName(''); // Clear the input
-    } catch (error) {
-      console.error('Error creating class:', error);
-      setStatusType('error');
-      setStatusMessage('Error creating class.');
-    }
-  };
+  if (isSubmitting) return;
+  
+  try {
+    setIsSubmitting(true);
+    setStatusMessage("");
+    await createClass(name);
+    setStatusType("success");
+    setStatusMessage("Class created successfully!");
+    setName("");
+  } catch (error) {
+    console.error("Error creating class:", error);
+    setStatusType("error");
+    setStatusMessage(
+      error instanceof Error ? error.message : "Error creating class."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="CreateClass">
@@ -38,11 +41,8 @@ export default function CreateClass() {
       <h2>Class Name</h2>
       <Textbox onInput={setName} />
       
-      <Button onClick={() => {
-        // Send API req
-        attemptCreateClass()
-      }}>
-        Submit
+      <Button onClick={attemptCreateClass} disabled={isSubmitting}>
+        {isSubmitting ? "Submitting..." : "Submit"}
       </Button>
     </div>
   )

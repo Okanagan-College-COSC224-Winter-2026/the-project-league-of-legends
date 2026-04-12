@@ -38,15 +38,15 @@
 
 
 .AssInputChunk {
-  
-    margin: 8px;
-  
+    margin: px;
     width: 30%;
-  
     background-color: #fff;
-  
-    
-  }
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* space between label, textbox and button */
+    padding: 8px;
+}
+
 
   
 .AssInput {

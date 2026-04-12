@@ -10,6 +10,8 @@ class User_Course(db.Model):
 
     __tablename__ = "User_Courses"
 
+    __mapper_args__ = {"confirm_deleted_rows": False}
+
     userID = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
     courseID = db.Column(db.Integer, db.ForeignKey("Course.id"), primary_key=True)
 

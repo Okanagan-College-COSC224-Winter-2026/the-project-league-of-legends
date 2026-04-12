@@ -4,7 +4,7 @@
   justify-content: flex-start;
   align-items: center;
   color: var(--text-primary);
-
+  position: relative;
   padding: 4px;
 
   width: 95%;
@@ -26,4 +26,41 @@
 .A_Card:hover{
   cursor: pointer;
   background-color: var(--background-secondary);
+}
+
+
+.card-content {
+  flex: 1;
+}
+
+.card-actions {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit, .btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btn-edit:hover {
+  background: #e3f2fd;
+}
+
+.btn-delete:hover {
+  background: #ffebee;
 }

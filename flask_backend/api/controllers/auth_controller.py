@@ -15,39 +15,60 @@ from ..models import User, UserLoginSchema, UserRegistrationSchema, UserSchema
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
-# Create schema instances once (reusable)
 registration_schema = UserRegistrationSchema()
 login_schema = UserLoginSchema()
 user_schema = UserSchema()
 
 
+def _normalize_email(email: str) -> str:
+    return (email or "").strip().lower()
+
+
 @bp.route("/register", methods=["POST"])
 def register():
-    """Register a new user account (student only - teachers/admins created by admins)"""
+    """
+    Public registration creates student accounts.
+    - If email does NOT exist: create new student (no roster required).
+    - If email exists AND must_change_password=True (roster placeholder): activate it.
+    - If email exists AND must_change_password=False: block duplicate registration.
+    """
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
-    # Validate input with Marshmallow
     try:
         data = registration_schema.load(request.json)
     except ValidationError as err:
         return jsonify({"msg": "Validation error", "errors": err.messages}), 400
 
-    # Check if user already exists
-    existing_user = User.get_by_email(data["email"])
-    if existing_user:
-        return jsonify({"msg": f"User with email {data['email']} is already registered"}), 400
+    email = _normalize_email(data["email"])
+    name = data["name"]
+    password = data["password"]
 
-    # Create new user (always student role for public registration)
-    new_user = User(
-        name=data["name"],
-        hash_pass=generate_password_hash(data["password"]),
-        email=data["email"],
-        role="student",  # Public registration only creates students
-    )
-    User.create_user(new_user)
+    existing_user = User.get_by_email(email)
 
-    return jsonify({"msg": "User registered successfully"}), 201
+    # Case 1: brand new registration (not on roster yet is OK)
+    if not existing_user:
+        new_user = User(
+            name=name,
+            hash_pass=generate_password_hash(password),
+            email=email,
+            role="student",
+            must_change_password=False,
+        )
+        User.create_user(new_user)
+        return jsonify({"msg": "User registered successfully"}), 201
+
+    # Case 2: roster placeholder -> activate account
+    if existing_user.must_change_password:
+        existing_user.name = name
+        existing_user.hash_pass = generate_password_hash(password)
+        existing_user.role = "student"
+        existing_user.must_change_password = False
+        existing_user.update()
+        return jsonify({"msg": "User registered successfully"}), 201
+
+    # Case 3: already a real account -> prevent duplicate
+    return jsonify({"msg": f"User with email {email} is already registered"}), 400
 
 
 @bp.route("/login", methods=["POST"])
@@ -56,19 +77,19 @@ def login():
     if not request.is_json:
         return jsonify({"msg": "Missing JSON in request"}), 400
 
-    # Validate input with Marshmallow
     try:
         data = login_schema.load(request.json)
     except ValidationError as err:
         return jsonify({"msg": "Validation error", "errors": err.messages}), 400
 
-    # Verify credentials
-    user = User.get_by_email(data["email"])
-    if user is None or not check_password_hash(user.hash_pass, data["password"]):
+    email = _normalize_email(data["email"])
+    password = data["password"]
+
+    user = User.get_by_email(email)
+    if user is None or not check_password_hash(user.hash_pass, password):
         return jsonify({"msg": "Bad email or password"}), 401
 
-    # Generate access token and set as httponly cookie
-    access_token = create_access_token(identity=data["email"])
+    access_token = create_access_token(identity=email)
     response = jsonify(user_schema.dump(user))
     set_access_cookies(response, access_token)
     return response, 200
@@ -77,23 +98,14 @@ def login():
 @bp.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
-    """
-    Logout endpoint - clears the JWT cookie
-    """
+    """Logout endpoint - clears the JWT cookie"""
     response = jsonify({"msg": "Successfully logged out"})
     unset_jwt_cookies(response)
     return response, 200
 
 
-# JWT-based decorators for API protection
 def jwt_role_required(*roles):
-    """Decorator to require specific role(s) for JWT-protected endpoints
-
-    Usage:
-        @jwt_role_required('admin')  # Only admins
-        @jwt_role_required('teacher', 'admin')  # Teachers or admins
-        @jwt_role_required('student', 'teacher', 'admin')  # Any authenticated user
-    """
+    """Decorator to require specific role(s) for JWT-protected endpoints"""
 
     def decorator(view):
         @functools.wraps(view)
@@ -105,7 +117,6 @@ def jwt_role_required(*roles):
             if not user:
                 return jsonify({"msg": "User not found"}), 404
 
-            # Check if user has one of the required roles
             if roles and not user.has_role(*roles):
                 return jsonify({"msg": "Insufficient permissions"}), 403
 
@@ -114,6 +125,42 @@ def jwt_role_required(*roles):
         return wrapped_view
 
     return decorator
+
+
+@bp.route("/change_password", methods=["POST"])
+@jwt_required()
+def change_password():
+    """
+    Allows a logged-in user (teacher/admin/student) to change their password
+    by providing the current password and a new password.
+    """
+
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    data = request.get_json()
+
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+
+    if not current_password or not new_password:
+        return jsonify({"msg": "Current password and new password are required"}), 400
+
+    email = get_jwt_identity()
+    user = User.get_by_email(email)
+
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Verify current password
+    if not check_password_hash(user.hash_pass, current_password):
+        return jsonify({"msg": "Current password is incorrect"}), 400
+
+    # Update password
+    user.hash_pass = generate_password_hash(new_password)
+    user.update()
+
+    return jsonify({"msg": "Password changed successfully"}), 200
 
 
 def jwt_admin_required(view):

@@ -3,7 +3,7 @@ import './Button.css'
 interface Props {
   onClick?: () => void
   children?: React.ReactNode
-  type?: 'regular' | 'secondary'
+  type?: 'regular' | 'secondary' | 'change-password'
   disabled?: boolean
 }
 

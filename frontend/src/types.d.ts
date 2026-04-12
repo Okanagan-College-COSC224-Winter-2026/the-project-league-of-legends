@@ -8,7 +8,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: 'student' | 'teacher' | 'admin';
+  role: "student" | "teacher" | "admin";
 }
 
 interface StudentGroups {
@@ -17,7 +17,7 @@ interface StudentGroups {
   assignmentID: number;
 }
 
-interface CourseGroup{
+interface CourseGroup {
   id: number;
   name: string;
   assignmentID: number;
@@ -27,13 +27,14 @@ interface GroupTable {
   [key: number]: GroupTableValue[];
 }
 
-interface GroupTableValue{
+interface GroupTableValue {
   groupID: number;
   userID: number;
   assignmentID: number;
 }
 
 interface Criterion {
+  id?: number;
   rubricID: number;
   question: string;
   scoreMax: number;
@@ -46,9 +47,19 @@ interface Assignment {
   courseID: number;
   rubric?: string;
   due_date?: string;
+  attachment_filename?: string | null;
+  attachment_path?: string | null;
 }
 
 interface CourseWithAssignments extends Course {
   assignments?: Assignment[];
   assignmentCount?: number;
+  teacher_name?: string | null;
+}
+
+interface CourseSearchResult {
+  id: number;
+  name: string;
+  teacherID: number;
+  teacher_name: string | null;
 }

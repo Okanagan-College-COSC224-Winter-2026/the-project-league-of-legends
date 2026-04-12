@@ -1,3 +1,4 @@
+// src/pages/ClassMembers.tsx
 import { useParams } from "react-router-dom";
 import TabNavigation from "../components/TabNavigation";
 import { useEffect, useState } from "react";
@@ -5,24 +6,69 @@ import Button from "../components/Button";
 import { importCSV } from "../util/csv";
 import { listCourseMembers, listClasses } from "../util/api";
 
-import './ClassMembers.css'
+import "./ClassMembers.css";
 import { isTeacher } from "../util/login";
 
+type Member = {
+  id: number;
+  name: string;
+  email?: string | null;
+  role?: string | null;
+};
+
+type Course = {
+  id: number;
+  name: string;
+};
+
 export default function ClassMembers() {
-  const { id } = useParams()
-  const [members, setMembers] = useState<User[]>([])
+  const { id } = useParams();
+
+  const [members, setMembers] = useState<Member[]>([]);
   const [className, setClassName] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    ;(async () => {
-      const members = await listCourseMembers(id as string)
-      const classes = await listClasses();
-      const currentClass = classes.find((c: { id: number }) => c.id === Number(id));
-      setMembers(members)
-      setClassName(currentClass?.name || null);
-    })()
-  }, [])  
+    let cancelled = false;
 
+    const run = async () => {
+      setError(null);
+
+      if (!id) {
+        setMembers([]);
+        setClassName(null);
+        return;
+      }
+
+      try {
+        const [membersResp, classesResp] = await Promise.all([
+          listCourseMembers(id),
+          listClasses(),
+        ]);
+
+        if (cancelled) return;
+
+        const classes = classesResp as Course[];
+        const currentClass = classes.find((c) => c.id === Number(id));
+
+        setMembers(membersResp as Member[]);
+        setClassName(currentClass?.name || null);
+      } catch (e) {
+        if (cancelled) return;
+        console.error(e);
+        setError("Failed to load class members");
+        setMembers([]);
+        setClassName(null);
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+  
   return (
     <>
       <div className="ClassHeader">
@@ -32,7 +78,9 @@ export default function ClassMembers() {
 
         <div className="ClassHeaderRight">
           {isTeacher() ? (
-            <Button onClick={() => importCSV(id as string)}>Add Students via CSV</Button>
+            <Button onClick={() => importCSV(id as string)}>
+              Add Students via CSV
+            </Button>
           ) : null}
         </div>
       </div>
@@ -51,15 +99,13 @@ export default function ClassMembers() {
       />
 
       <div className="ClassMemberList">
-        {
-          members.map(member => {
-            return (
-              <div key={member.id} className="Member">
-                {member.name} ({member.id})
-              </div>
-            )
-          })
-        }
+        {error ? <div className="Member">{error}</div> : null}
+
+        {members.map((member) => (
+          <div key={member.id} className="Member">
+            {member.name} 
+          </div>
+        ))}
       </div>
     </>
   );

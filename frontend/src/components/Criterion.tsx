@@ -6,9 +6,12 @@ interface props {
     question: string;
     scoreMax: number;
     hasScore: boolean;
+    canComment: boolean;
     onCriterionSelect: (row: number, column: number) => void;
+    onCriterionCommentChange?: (row: number, comment: string) => void;
     questionIndex: number;
-    grade: number;
+    grade: number | null;
+    comment: string;
 }
 
 export default function Criterion(props: props) {
@@ -48,7 +51,33 @@ export default function Criterion(props: props) {
                 })
             ) : (
                 <td className='criterionData'>
-                    <textarea className='comment' placeholder='Comment here'/>
+                    <textarea
+                        className='comment'
+                        placeholder='Comment here'
+                        value={props.comment}
+                        onChange={(event) =>
+                            props.onCriterionCommentChange?.(
+                                props.questionIndex,
+                                event.target.value
+                            )
+                        }
+                    />
+                </td>
+            )}
+
+            {props.canComment && props.hasScore && (
+                <td className='criterionData'>
+                    <textarea
+                        className='comment'
+                        placeholder='Comment here'
+                        value={props.comment}
+                        onChange={(event) =>
+                            props.onCriterionCommentChange?.(
+                                props.questionIndex,
+                                event.target.value
+                            )
+                        }
+                    />
                 </td>
             )}
         </tr>

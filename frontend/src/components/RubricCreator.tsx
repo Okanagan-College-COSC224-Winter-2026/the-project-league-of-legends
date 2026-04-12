@@ -17,12 +17,30 @@ export default function RubricCreator({ onRubricCreated, id }: RubricCreatorProp
 
     const handleCreate = async () => {
         try {
+            
             setStatusMessage('');
-            const rubricResponse = await createRubric(id, id, canComment);
+            
+            // Validation: check that at least one criterion exists
+            if (newCriteria.length === 0) {
+                setStatusType('error');
+                setStatusMessage('Must add at least one criterion.');
+                return;
+            }
+            
+            // Validation: check that no criterion has an empty question
+            if (newCriteria.some(crit => !crit.question || crit.question.trim() === '')) {
+                setStatusType('error');
+                setStatusMessage('All criteria must have a question.');
+                return;
+            }
+            
+            const rubricResponse = await createRubric(id, canComment);
+            console.log("here 1");
             const newRubricID = rubricResponse.id;
             await Promise.all(newCriteria.map(({ question, scoreMax, hasScore }) => 
-                createCriteria(newRubricID, question, scoreMax, canComment, hasScore)
+                createCriteria(newRubricID, question, scoreMax, hasScore)
             ));
+            
             setStatusType('success');
             setStatusMessage('Rubric created successfully!');
             setTimeout(() => window.location.reload(), 2000);

@@ -112,6 +112,89 @@ def update_user_role(user_id):
     )
 
 
+@bp.route("/users/<int:user_id>", methods=["PUT"])
+@jwt_admin_required
+def update_user(user_id):
+    """Update a user's name and/or email (admin only)"""
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    user = User.get_by_id(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    name = request.json.get("name")
+    email = request.json.get("email")
+
+    # At least one field must be provided
+    if not name and not email:
+        return jsonify({"msg": "At least one field (name or email) must be provided"}), 400
+
+    # If email is being updated, check for duplicates
+    if email and email != user.email:
+        existing_user = User.get_by_email(email)
+        if existing_user:
+            return jsonify({"msg": f"Email {email} is already in use"}), 400
+
+    # Update fields
+    if name:
+        user.name = name
+    if email:
+        user.email = email
+
+    user.update()
+
+    return (
+        jsonify(
+            {
+                "msg": "User updated successfully",
+                "user": UserSchema().dump(user),
+            }
+        ),
+        200,
+    )
+
+
+@bp.route("/users/<int:user_id>/password", methods=["PUT"])
+@jwt_admin_required
+def reset_user_password(user_id):
+    """Reset a user's password (admin only)"""
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+
+    new_password = request.json.get("password")
+
+    if not new_password:
+        return jsonify({"msg": "Password is required"}), 400
+
+    if len(new_password) < 6:
+        return jsonify({"msg": "Password must be at least 6 characters"}), 400
+
+    user = User.get_by_id(user_id)
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    # Prevent self-password-change via this endpoint (use /user/password for that)
+    current_email = get_jwt_identity()
+    current_user = User.get_by_email(current_email)
+    if current_user.id == user_id:
+        return jsonify({"msg": "Use your own password change endpoint to change your password"}), 400
+
+    user.hash_pass = generate_password_hash(new_password)
+    user.must_change_password = True
+    user.update()
+
+    return (
+        jsonify(
+            {
+                "msg": f"Password reset for user {user.name}. They will be required to change it on next login.",
+                "user": UserSchema().dump(user),
+            }
+        ),
+        200,
+    )
+
+
 @bp.route("/users/<int:user_id>", methods=["DELETE"])
 @jwt_admin_required
 def delete_user(user_id):

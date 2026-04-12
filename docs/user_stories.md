@@ -469,3 +469,46 @@
 - [ ] Admin receives success or error feedback for each action  
 - [ ] All actions go through the frontend admin page and persist to the backend
 
+
+## US27 – Teacher Group Creation — **In progress**
+
+**As a teacher, I want to create groups for assignments so that students can be organized for peer evaluations.**
+
+### Assumptions and Details
+
+- Teacher is signed in and on the assignments page 
+- Teacher has created an assignment that supports group work  
+- Students are enrolled in the class  
+- System supports group-based peer reviews  
+
+### Capabilities and Acceptance Criteria
+
+- [ ] Teacher can access a group management interface for an assignment  
+- [ ] Teacher can create a new group with a name  
+- [ ] Teacher can assign students to groups manually  
+- [ ] Teacher can remove students from groups  
+- [ ] Teacher can view all groups and their members for an assignment  
+- [ ] Teacher can edit group names and memberships before the assignment due date  
+- [ ] Groups are scoped to specific assignments  
+- [ ] System prevents invalid group assignments (e.g., student in multiple groups for same assignment)
+
+---
+
+## US28 – Student Group Viewing — **Backlog**
+
+**As a student, I want to view my group assignments so that I know which group I am in for peer evaluations.**
+
+### Assumptions and Details
+
+- Student is signed in  
+- Groups have been created for assignments by the teacher  
+- Student is enrolled in the class  
+
+### Capabilities and Acceptance Criteria
+
+- [ ] Student can see their group assignments  
+- [ ] Groups are scoped to specific assignments  
+- [ ] Student can view group members for their assignments
+- [ ] Students can see their group assignments  
+- [ ] Groups are scoped to specific assignments  
+- [ ] System prevents invalid group assignments (e.g., student in multiple groups for same assignment)

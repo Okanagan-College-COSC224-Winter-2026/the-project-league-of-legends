@@ -24,16 +24,25 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = User
         load_instance = True
-        include_fk = False  # Don't expose raw foreign keys
+        include_fk = False
         sqla_session = db.session
         exclude = ("hash_pass",)
 
-    # Explicit fields for clarity and validation
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
+    username = fields.Str(
+        allow_none=True,
+        validate=validate.Length(min=1, max=255),
+    )
     email = fields.Email(required=True)
+    pronouns = fields.Str(
+        allow_none=True,
+        validate=validate.Length(max=100),
+    )
+    profile_picture = fields.Str(allow_none=True)
     role = fields.Str(
-        dump_default="student", validate=validate.OneOf(["student", "teacher", "admin"])
+        dump_default="student",
+        validate=validate.OneOf(["student", "teacher", "admin"]),
     )
     must_change_password = fields.Bool(dump_default=False)
 
@@ -43,7 +52,11 @@ class UserRegistrationSchema(ma.Schema):
 
     name = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     email = fields.Email(required=True)
-    password = fields.Str(required=True, load_only=True, validate=validate.Length(min=6))
+    password = fields.Str(
+        required=True,
+        load_only=True,
+        validate=validate.Length(min=6),
+    )
 
 
 class UserLoginSchema(ma.Schema):
@@ -60,7 +73,6 @@ class UserListSchema(ma.SQLAlchemyAutoSchema):
         model = User
         fields = ("id", "name", "email", "role")
         dump_only = ("id",)
-
 
 # ============================================================
 # COURSE SCHEMAS
@@ -92,6 +104,23 @@ class CourseListSchema(ma.SQLAlchemyAutoSchema):
         fields = ("id", "name", "teacherID")
         dump_only = ("id",)
         include_fk = True  # Allow teacherID to be serialized
+
+
+class CourseSearchSchema(ma.SQLAlchemyAutoSchema):
+    """Course schema for search results — includes teacher name"""
+
+    class Meta:
+        model = Course
+        fields = ("id", "name", "teacherID", "teacher_name")
+        dump_only = ("id",)
+        include_fk = True
+
+    teacher_name = fields.Method("get_teacher_name")
+
+    def get_teacher_name(self, obj):
+        if obj.teacher:
+            return obj.teacher.name
+        return None
 
 
 # ============================================================
@@ -192,8 +221,10 @@ class CourseGroupSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = CourseGroup
         load_instance = True
-        include_fk = False
+        include_fk = True  # Include assignmentID
         sqla_session = db.session
+
+    assignment = fields.Nested(AssignmentSchema, dump_only=True)
 
 
 class GroupMembersSchema(ma.SQLAlchemyAutoSchema):
