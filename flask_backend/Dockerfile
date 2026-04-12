@@ -52,8 +52,8 @@ COPY --from=builder /opt/venv /opt/venv
 COPY api/ /app/api/
 COPY run_gunicorn.sh /app/run_gunicorn.sh
 
-# Normalize Windows line endings if present, then ensure entrypoint is executable
-RUN sed -i 's/\r$//' /app/run_gunicorn.sh && chmod +x /app/run_gunicorn.sh
+# Ensure entrypoint script is executable
+RUN chmod +x /app/run_gunicorn.sh
 
 # Set ownership to non-root user
 RUN chown -R flask:flask /app
