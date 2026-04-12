@@ -58,12 +58,16 @@ services:
     environment:
       # Flask configuration
       FLASK_APP: api
-      FLASK_ENV: ${FLASK_ENV:-production}
+      FLASK_ENV: ${FLASK_ENV:-development}
       # To enable development mode, set FLASK_ENV=development in your .env file or environment.
+      PRODUCTION: ${PRODUCTION:-false}
       
       # Security secrets (override via .env file or environment)
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-prod}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-dev-jwt-secret-change-in-prod}
+      JWT_COOKIE_SECURE: ${JWT_COOKIE_SECURE:-false}
+      JWT_COOKIE_CSRF_PROTECT: ${JWT_COOKIE_CSRF_PROTECT:-false}
+      JWT_COOKIE_SAMESITE: ${JWT_COOKIE_SAMESITE:-Lax}
       
       # Database connection (uses environment variables to avoid hardcoded credentials)
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://${POSTGRES_USER:-peereval_user}:${POSTGRES_PASSWORD:-dev_password_change_in_prod}@postgres:5432/${POSTGRES_DB:-peereval}}
