@@ -22,14 +22,6 @@ from .controllers import (
 from .models.db import db, ma
 
 
-def _env_flag(name: str, default: bool) -> bool:
-    raw_value = os.environ.get(name)
-    if raw_value is None:
-        return default
-
-    return raw_value.strip().lower() in {"1", "true", "yes", "on"}
-
-
 def create_app(test_config=None):
     """Create and configure the Flask application"""
     # create and configure the app
@@ -39,11 +31,6 @@ def create_app(test_config=None):
     is_production = (
         os.environ.get("FLASK_ENV") == "production"
         or os.environ.get("PRODUCTION", "false").lower() == "true"
-    )
-    jwt_cookie_secure = _env_flag("JWT_COOKIE_SECURE", is_production)
-    jwt_cookie_csrf_protect = _env_flag("JWT_COOKIE_CSRF_PROTECT", is_production)
-    jwt_cookie_samesite = os.environ.get(
-        "JWT_COOKIE_SAMESITE", "Strict" if is_production else "Lax"
     )
 
     # Validate required secrets in production
@@ -67,9 +54,11 @@ def create_app(test_config=None):
         JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY", "dev-jwt-secret"),
         # JWT Cookie settings - secure defaults for production, permissive for development
         JWT_TOKEN_LOCATION=["cookies"],
-        JWT_COOKIE_SECURE=jwt_cookie_secure,
-        JWT_COOKIE_CSRF_PROTECT=jwt_cookie_csrf_protect,
-        JWT_COOKIE_SAMESITE=jwt_cookie_samesite,
+        JWT_COOKIE_SECURE=is_production,  # True in production (HTTPS required)
+        JWT_COOKIE_CSRF_PROTECT=is_production,  # True in production for CSRF protection
+        JWT_COOKIE_SAMESITE=(
+            "Strict" if is_production else "Lax"
+        ),  # Strict in production for maximum security
         JWT_ACCESS_COOKIE_PATH="/",
         JWT_COOKIE_DOMAIN=os.environ.get("JWT_COOKIE_DOMAIN", None),
         UPLOAD_FOLDER=os.path.join(app.instance_path, "uploads"),
