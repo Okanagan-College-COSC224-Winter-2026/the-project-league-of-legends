@@ -63,7 +63,7 @@ def create_group():
     """Create a new group for an assignment (teacher only)"""
     data = request.get_json()
     assignment_id = data.get("assignmentID")
-    group_name = (data.get("name") or "").strip()
+    group_name = data.get("name")
 
     if not assignment_id:
         return jsonify({"msg": "Assignment ID is required"}), 400
@@ -386,7 +386,7 @@ def edit_group(group_id):
         return jsonify({"msg": "Groups cannot be modified after assignment due date"}), 400
 
     data = request.get_json()
-    new_name = (data.get("name") or "").strip()
+    new_name = data.get("name")
 
     if not new_name:
         return jsonify({"msg": "Group name is required"}), 400
