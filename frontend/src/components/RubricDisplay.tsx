@@ -7,7 +7,9 @@ import './RubricDisplay.css';
 interface RubricDisplayProps {
     rubricId: number | null;
     onCriterionSelect: (row: number, column: number) => void;
-    grades: number[];
+    grades: (number | null)[];
+    criterionComments?: Record<number, string>;
+    onCriterionCommentChange?: (row: number, comment: string) => void;
 }
 
 interface RubricInfo {
@@ -17,7 +19,7 @@ interface RubricInfo {
     grades: number[];
 }
 
-export default function RubricDisplay({ rubricId, onCriterionSelect, grades }: RubricDisplayProps) {
+export default function RubricDisplay({ rubricId, onCriterionSelect, grades, criterionComments, onCriterionCommentChange }: RubricDisplayProps) {
     const [criteria, setCriteria] = useState<Criterion[]>([]);
     const [rubricInfo, setRubricInfo] = useState<RubricInfo | null>(null);
     const questions: string[] = [];
@@ -83,6 +85,8 @@ export default function RubricDisplay({ rubricId, onCriterionSelect, grades }: R
                 hasScores={hasScores}
                 onCriterionSelect={onCriterionSelect}
                 grades={grades}
+                comments={criterionComments}
+                onCriterionCommentChange={onCriterionCommentChange}
             />
         </div>
     );

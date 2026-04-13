@@ -17,6 +17,9 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True, index=True)
+    username = db.Column(db.String(100), nullable=True)
+    pronouns = db.Column(db.String(100), nullable=True)
+    profile_picture = db.Column(db.String(255), nullable=True)
     hash_pass = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), default="student", nullable=False)
     must_change_password = db.Column(db.Boolean, default=False, nullable=False)
@@ -52,18 +55,39 @@ class User(db.Model):
         "Group_Members", back_populates="user", cascade="all, delete-orphan", lazy="dynamic"
     )
 
-    def __init__(self, name, email, hash_pass, role="student", must_change_password=False):
+    def __init__(
+        self,
+        name,
+        email,
+        hash_pass,
+        role="student",
+        must_change_password=False,
+        username=None,
+        pronouns=None,
+        profile_picture=None,
+    ):
         valid_roles = ["student", "teacher", "admin"]
         if role not in valid_roles:
-            raise ValueError(f"Invalid role '{role}'. Must be one of: {', '.join(valid_roles)}")
+            raise ValueError(
+                f"Invalid role '{role}'. "
+                f"Must be one of: {', '.join(valid_roles)}"
+            )
+
         self.name = name
+        self.username = username
         self.email = email
+        self.pronouns = pronouns
+        self.profile_picture = profile_picture
         self.hash_pass = hash_pass
         self.role = role
         self.must_change_password = must_change_password
 
     def __repr__(self):
-        return f"<User id={self.id} email={self.email}>"
+        return (
+            f"<User id={self.id} "
+            f"email={self.email} "
+            f"role={self.role}>"
+        )
 
     @classmethod
     def get_by_id(cls, user_id):

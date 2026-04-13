@@ -16,6 +16,7 @@ interface Props {
     name?: string
     due_date?: string | null
     rubric?: string | null
+    file?: File | null
   }) => Promise<void>
   onCancel: () => void
 }
@@ -24,6 +25,7 @@ export default function AssignmentEditor(props: Props) {
   const [name, setName] = useState(props.assignment.name)
   const [dueDate, setDueDate] = useState(props.assignment.due_date || '')
   const [rubric, setRubric] = useState(props.assignment.rubric_text || '')
+  const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -35,6 +37,7 @@ export default function AssignmentEditor(props: Props) {
         name,
         due_date: dueDate || null,
         rubric: rubric || null,
+        file,
       })
       props.onCancel() // Close modal on success
     } catch (err: unknown) {
@@ -82,6 +85,16 @@ export default function AssignmentEditor(props: Props) {
             rows={6}
             disabled={loading}
           />
+        </div>
+
+        <div className="form-group">
+          <label>Replace Assignment File (Optional)</label>
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            disabled={loading}
+          />
+          {file && <small>Selected file: {file.name}</small>}
         </div>
 
         <div className="modal-actions">
