@@ -201,9 +201,9 @@ export default function ClassHome() {
                 <AssignmentCard
                   id={assignment.id}
                   name={assignment.name}
-                  startDate={(assignment as any).start_date}
+                  startDate={assignment.start_date}
                   dueDate={assignment.due_date}
-                  status={(assignment as any).status}
+                  status={assignment.status}
                   onEdit={() => setEditingAssignment(assignment)}
                   onDelete={handleDeleteAssignment}
                   isTeacher={isTeacher()}

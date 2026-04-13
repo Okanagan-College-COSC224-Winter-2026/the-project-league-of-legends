@@ -47,6 +47,8 @@ interface Assignment {
   courseID: number;
   rubric?: string;
   due_date?: string;
+  start_date?: string;
+  status?: string;
   attachment_filename?: string | null;
   attachment_path?: string | null;
 }

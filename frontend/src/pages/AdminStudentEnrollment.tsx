@@ -45,14 +45,14 @@ export default function AdminStudentEnrollment() {
   const [viewMode, setViewMode] = useState<ViewMode>('students');
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<ClassData[]>([]);
-  const [allClasses, setAllClasses] = useState<any[]>([]);
+  const [allClasses, setAllClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
   const [enrollModalOpen, setEnrollModalOpen] = useState(false);
-  const [enrollmentClass, setEnrollmentClass] = useState<any | null>(null);
+  const [enrollmentClass, setEnrollmentClass] = useState<ClassData | null>(null);
   const [enrollmentStudent, setEnrollmentStudent] = useState<Student | null>(null);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export default function AdminStudentEnrollment() {
     }
   };
 
-  const handleEnrollClick = (student: Student, availableClass: any) => {
+  const handleEnrollClick = (student: Student, availableClass: ClassData) => {
     setEnrollmentStudent(student);
     setEnrollmentClass(availableClass);
     setEnrollModalOpen(true);
@@ -116,7 +116,7 @@ export default function AdminStudentEnrollment() {
     }
   };
 
-  const getAvailableClasses = (student: Student): any[] => {
+  const getAvailableClasses = (student: Student): ClassData[] => {
     const enrolledClassIds = student.enrolled_courses.map(c => c.id);
     return allClasses.filter(c => !enrolledClassIds.includes(c.id));
   };
