@@ -55,6 +55,10 @@ COPY api/ /app/api/
 # Copy runtime entrypoint
 COPY run_gunicorn.sh /app/run_gunicorn.sh
 
+# Create the Flask instance/uploads directory in the image so the Docker
+# volume is initialized with the expected structure and writable ownership.
+RUN mkdir -p /app/instance/uploads
+
 # Normalize Windows CRLF line endings so /bin/sh can execute the script reliably
 RUN sed -i 's/\r$//' /app/run_gunicorn.sh
 

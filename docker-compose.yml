@@ -55,6 +55,8 @@ services:
     container_name: peereval-flask
     ports:
       - "5000:5000"
+    volumes:
+      - flask_instance_data:/app/instance
     environment:
       # Flask configuration
       FLASK_APP: api
@@ -123,6 +125,8 @@ services:
 # ============================================================================
 volumes:
   postgres_data:
+    driver: local
+  flask_instance_data:
     driver: local
 
 # ============================================================================

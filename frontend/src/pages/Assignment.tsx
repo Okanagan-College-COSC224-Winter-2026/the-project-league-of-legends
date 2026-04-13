@@ -44,6 +44,8 @@ export default function Assignment() {
   const { id } = useParams();
   const assignmentId = Number(id);
 
+  const [assignmentName, setAssignmentName] = useState<string>("Assignment");
+  const [rubricId, setRubricId] = useState<number | null>(null);
   const [stuGroup, setStuGroup] = useState<StudentGroups[]>([]);
   const [classMembers, setClassMembers] = useState<User[]>([]);
   const [revieweeID, setRevieweeID] = useState<number>(0);
@@ -77,10 +79,18 @@ export default function Assignment() {
   const isTeacherView = isTeacher();
   const hasGroup = stuGroup.length > 0;
 
-  const loadClassMembers = async (currentAssignmentId: number) => {
+  const loadAssignmentContext = async (currentAssignmentId: number) => {
     try {
       const assignment = await getAssignment(currentAssignmentId);
       const courseId = assignment?.course?.id;
+      setAssignmentName(
+        typeof assignment?.name === "string" && assignment.name.trim().length > 0
+          ? assignment.name
+          : "Assignment",
+      );
+      setRubricId(
+        typeof assignment?.rubric_id === "number" ? assignment.rubric_id : null,
+      );
       setAssignmentAttachmentName(
         typeof assignment?.attachment_filename === "string"
           ? assignment.attachment_filename
@@ -96,6 +106,8 @@ export default function Assignment() {
     } catch (error) {
       console.error("Error fetching class members:", error);
       setClassMembers([]);
+      setAssignmentName("Assignment");
+      setRubricId(null);
       setAssignmentAttachmentName(null);
     }
   };
@@ -184,21 +196,18 @@ export default function Assignment() {
     (async () => {
       try {
         if (isTeacherView) {
-          await loadClassMembers(assignmentId);
+          await loadAssignmentContext(assignmentId);
           await refreshTeacherSubmissionData();
           return;
         }
 
         const currentStuID = await getUserId();
         setStuID(currentStuID);
-        await loadClassMembers(assignmentId);
+        await loadAssignmentContext(assignmentId);
 
         const groupMembers = await listStuGroup(assignmentId, currentStuID);
         setStuGroup(groupMembers);
         await loadMySubmissionInfo(assignmentId);
-
-        const criteria = await getCriteria(assignmentId);
-        setRubricCriteria(Array.isArray(criteria) ? criteria : []);
       } catch (error) {
         console.error("Error loading assignment page:", error);
         setSubmissionMessage(
@@ -209,6 +218,23 @@ export default function Assignment() {
       }
       })();
     }, [assignmentId, isTeacherView, refreshTeacherSubmissionData]);
+
+  useEffect(() => {
+    if (isTeacherView || rubricId === null) {
+      setRubricCriteria([]);
+      return;
+    }
+
+    (async () => {
+      try {
+        const criteria = await getCriteria(rubricId);
+        setRubricCriteria(Array.isArray(criteria) ? criteria : []);
+      } catch (error) {
+        console.error("Error loading rubric criteria:", error);
+        setRubricCriteria([]);
+      }
+    })();
+  }, [isTeacherView, rubricId]);
 
   useEffect(() => {
     if (isTeacherView || revieweeID <= 0) {
@@ -360,7 +386,7 @@ export default function Assignment() {
   return (
     <>
       <div className="AssignmentHeader">
-        <h2>Assignment {id}</h2>
+        <h2>{assignmentName}</h2>
       </div>
 
       <TabNavigation
@@ -388,7 +414,7 @@ export default function Assignment() {
 
           <div className="assignmentRubricDisplay">
             <RubricDisplay
-              rubricId={assignmentId}
+              rubricId={rubricId}
               onCriterionSelect={handleCriterionSelect}
               grades={review}
               criterionComments={criterionComments}
@@ -409,7 +435,19 @@ export default function Assignment() {
                 <h3>Edit Rubric</h3>
               </div>
               <div className="assignmentRubric">
-                <RubricCreator id={assignmentId} />
+                <RubricCreator
+                  id={assignmentId}
+                  onRubricCreated={async (newRubricId) => {
+                    setRubricId(newRubricId);
+                    try {
+                      const criteria = await getCriteria(newRubricId);
+                      setRubricCriteria(Array.isArray(criteria) ? criteria : []);
+                    } catch (error) {
+                      console.error("Error refreshing rubric criteria:", error);
+                      setRubricCriteria([]);
+                    }
+                  }}
+                />
               </div>
             </div>
 

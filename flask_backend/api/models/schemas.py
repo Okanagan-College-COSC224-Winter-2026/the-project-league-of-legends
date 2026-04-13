@@ -138,6 +138,11 @@ class AssignmentSchema(ma.SQLAlchemyAutoSchema):
         sqla_session = db.session
 
     course = fields.Nested(CourseListSchema, dump_only=True)
+    rubric_id = fields.Method("get_rubric_id", dump_only=True)
+
+    def get_rubric_id(self, obj):
+        rubric = obj.rubrics.order_by(Rubric.id.desc()).first()
+        return rubric.id if rubric else None
 
 
 # ============================================================

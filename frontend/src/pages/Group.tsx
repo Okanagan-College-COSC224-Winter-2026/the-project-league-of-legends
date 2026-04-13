@@ -62,6 +62,7 @@ export default function Group() {
   const [statusType, setStatusType] = useState<"error" | "success">("error");
   const [expandedGroups, setExpandedGroups] = useState<Set<number>>(new Set());
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [assignmentName, setAssignmentName] = useState("Assignment");
 
   const nameFromId = (userId: number) => {
     return classMembers.find((mem) => mem.id === userId)?.name || "N/A";
@@ -142,6 +143,11 @@ export default function Group() {
 
     const assignmentResp = await getAssignment(Number(id));
     if (cancelled()) return;
+    setAssignmentName(
+      typeof assignmentResp?.name === "string" && assignmentResp.name.trim().length > 0
+        ? assignmentResp.name
+        : "Assignment"
+    );
     const courseId = assignmentResp.course.id;
 
     const classMembersResp = await listCourseMembers(String(courseId));
@@ -232,7 +238,7 @@ export default function Group() {
   return (
     <>
       <div className="AssignmentHeader">
-        <h2>Assignment {id}</h2>
+        <h2>{assignmentName}</h2>
       </div>
 
       <TabNavigation

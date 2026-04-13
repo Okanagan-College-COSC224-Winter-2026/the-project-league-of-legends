@@ -43,10 +43,11 @@ export default function RubricCreator({ onRubricCreated, id }: RubricCreatorProp
             
             setStatusType('success');
             setStatusMessage('Rubric created successfully!');
-            setTimeout(() => window.location.reload(), 2000);
             if (onRubricCreated) {
                 onRubricCreated(newRubricID);
             }
+            setNewCriteria([{ rubricID: 0, question: '', scoreMax: 0, hasScore: true }]);
+            setCanComment(false);
         } catch (error) {
             console.error("Error creating criteria:", error);
             setStatusType('error');

@@ -33,6 +33,7 @@ export default function AssignmentReviews() {
   const assignmentId = Number(id);
 
   const [classMembers, setClassMembers] = useState<User[]>([]);
+  const [assignmentName, setAssignmentName] = useState("Assignment");
   const [selectedRevieweeId, setSelectedRevieweeId] = useState<number | null>(null);
   const [payload, setPayload] = useState<ReceivedReviewsPayload | null>(null);
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,25 @@ export default function AssignmentReviews() {
     () => classMembers.filter((member) => member.role === "student"),
     [classMembers]
   );
+
+  useEffect(() => {
+    if (!Number.isFinite(assignmentId)) {
+      return;
+    }
+
+    (async () => {
+      try {
+        const assignment = await getAssignment(assignmentId);
+        setAssignmentName(
+          typeof assignment?.name === "string" && assignment.name.trim().length > 0
+            ? assignment.name
+            : "Assignment"
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load assignment");
+      }
+    })();
+  }, [assignmentId]);
 
   useEffect(() => {
     if (!canChooseReviewee || !Number.isFinite(assignmentId)) {
@@ -102,7 +122,7 @@ export default function AssignmentReviews() {
   return (
     <>
       <div className="AssignmentHeader">
-        <h2>Assignment {id}</h2>
+        <h2>{assignmentName}</h2>
       </div>
 
       <TabNavigation
