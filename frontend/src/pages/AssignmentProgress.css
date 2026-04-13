@@ -1,0 +1,138 @@
+.AssignmentProgressPage {
+  padding: 20px;
+}
+
+.AssignmentProgressTabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.AssignmentProgressTab {
+  border: 1px solid #b8bec8;
+  background: #f3f5f8;
+  color: #1f2937;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.AssignmentProgressTab.active {
+  background: #0f4c81;
+  color: #ffffff;
+  border-color: #0f4c81;
+}
+
+.AssignmentProgressError {
+  color: #8b1f1f;
+  margin-bottom: 14px;
+}
+
+.CourseProgressList {
+  display: grid;
+  gap: 14px;
+}
+
+.CourseProgressCard {
+  border: 1px solid #dde3ea;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.CourseButton {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.AssignmentList {
+  padding: 10px 14px 14px;
+}
+
+.AssignmentCard {
+  border: 1px solid #e6ebf1;
+  border-radius: 8px;
+  background: #ffffff;
+  margin-top: 10px;
+}
+
+.AssignmentButton {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: none;
+  background: transparent;
+  padding: 12px 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.AssignmentName {
+  margin: 0;
+  font-weight: 600;
+}
+
+.AssignmentDue {
+  margin: 4px 0 0;
+  color: #5a6472;
+  font-size: 13px;
+}
+
+.AssignmentDetails {
+  padding: 0 14px 14px;
+}
+
+.ProgressTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ProgressTable th,
+.ProgressTable td {
+  border-bottom: 1px solid #e6ebf1;
+  padding: 10px 8px;
+  text-align: left;
+  font-size: 14px;
+  vertical-align: top;
+}
+
+.StatusBadge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.StatusBadge.submitted {
+  background: #dff7e8;
+  color: #14532d;
+}
+
+.StatusBadge.missing {
+  background: #fde8e8;
+  color: #7f1d1d;
+}
+
+@media (max-width: 768px) {
+  .AssignmentButton {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .ProgressTable th,
+  .ProgressTable td {
+    font-size: 13px;
+    padding: 8px 6px;
+  }
+}
