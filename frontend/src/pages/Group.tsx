@@ -73,6 +73,14 @@ export default function Group() {
     return currentUserId === userId ? `${name} (you)` : name;
   };
 
+  const labelForGroup = (groupId: number) => {
+    const group = groups.find((gr) => gr.id === groupId);
+    const trimmedName =
+      typeof group?.name === "string" ? group.name.trim() : "";
+
+    return trimmedName.length > 0 ? trimmedName : `Untitled Group (${groupId})`;
+  };
+
   const toggleExpand = (gId: number) => {
     setExpandedGroups(prev => {
       const newSet = new Set(prev);
@@ -373,6 +381,13 @@ export default function Group() {
               if (!id) return;
 
               // derive a temporary ID for front‑end state
+              const trimmedGroupName = groupName.trim();
+              if (!trimmedGroupName) {
+                setStatusType("error");
+                setStatusMessage("Group name is required.");
+                return;
+              }
+
               const nextIdResp = await getNextGroupID(Number(id));
               const nextGid =
                 typeof nextIdResp === "number"
@@ -380,9 +395,10 @@ export default function Group() {
                   : Number((nextIdResp as { id?: number })?.id ?? 0);
 
               try {
-                const result = await createGroup(Number(id), groupName, Number(nextGid));
+                const result = await createGroup(Number(id), trimmedGroupName, Number(nextGid));
                 setStatusType("success");
                 setStatusMessage(result.msg || "Group created!");
+                setGroupName("");
 
                 // Reload all data so names and groups are in sync
                 const cancelled = false;
@@ -509,7 +525,7 @@ export default function Group() {
                               <img src="/icons/arrow.svg" alt="arrow" />
                             </div>
                             <span className="groupLabel">
-                              {groups.find((gr) => gr.id === groupIdNum)?.name}
+                              {labelForGroup(groupIdNum)}
                             </span>
                           </td>
                         </tr>
