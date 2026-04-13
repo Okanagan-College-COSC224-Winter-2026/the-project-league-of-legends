@@ -2,7 +2,6 @@
 import { useParams } from "react-router-dom";
 import TabNavigation from "../components/TabNavigation";
 import { useEffect, useState } from "react";
-import Button from "../components/Button";
 import { importCSV } from "../util/csv";
 import { listCourseMembers, listClasses } from "../util/api";
 
@@ -75,14 +74,6 @@ export default function ClassMembers() {
         <div className="ClassHeaderLeft">
           <h2>{className}</h2>
         </div>
-
-        <div className="ClassHeaderRight">
-          {isTeacher() ? (
-            <Button onClick={() => importCSV(id as string, { onSuccess: () => loadMembers(false) })}>
-              Add Students via CSV
-            </Button>
-          ) : null}
-        </div>
       </div>
 
       <TabNavigation
@@ -97,6 +88,19 @@ export default function ClassMembers() {
           },
         ]}
       />
+
+      {isTeacher() ? (
+        <div className="ClassMembersPageActions">
+          <button
+            className="ClassMembersCsvButton"
+            onClick={() =>
+              importCSV(id as string, { onSuccess: () => loadMembers(false) })
+            }
+          >
+            Add Students via CSV
+          </button>
+        </div>
+      ) : null}
 
       <div className="ClassMemberList">
         {error ? <div className="Member">{error}</div> : null}

@@ -33,6 +33,55 @@
   flex: 1;
 }
 
+.assignment-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.assignment-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.assignment-card-title {
+  font-weight: bold;
+}
+
+.assignment-card-meta {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.assignment-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.assignment-status-complete {
+  background: #dff7e8;
+  color: #1f7a43;
+}
+
+.assignment-status-late {
+  background: #fde8e8;
+  color: #b42318;
+}
+
+.assignment-status-upcoming {
+  background: #e8f1ff;
+  color: #1d4ed8;
+}
+
 .card-actions {
   display: flex;
   gap: 5px;
@@ -45,6 +94,13 @@
   padding: 6px 8px;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 720px) {
+  .assignment-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .btn-edit, .btn-delete {
