@@ -36,11 +36,18 @@
     padding: 12px;
 }
 
+.ClassHeaderRight {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+}
+
 
 .AssInputChunk {
     margin: px;
     width: 30%;
-    background-color: #fff;
+    background-color: var(--background-primary);
     display: flex;
     flex-direction: column;
     gap: 10px; /* space between label, textbox and button */

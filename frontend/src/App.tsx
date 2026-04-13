@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Sidebar from "./components/Sidebar";
+import Header from "./components/Header";
 
 import "./App.css";
 import Profile from "./pages/Profile";
@@ -15,6 +16,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ChangePassword from "./pages/ChangePassword";
 import CreateTeacher from "./pages/CreateTeacher";
 import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminStudentEnrollment from "./pages/AdminStudentEnrollment";
 import Dashboard from "./pages/Dashboard";
 
 function AppContent() {
@@ -25,6 +27,7 @@ function AppContent() {
     <div className="App">
       {!noSidebarPaths.includes(location.pathname) && <Sidebar />}
       <div className="inner">
+        {!noSidebarPaths.includes(location.pathname) && <Header />}
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -62,6 +65,15 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AdminUserManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/student-enrollment"
+            element={
+              <ProtectedRoute>
+                <AdminStudentEnrollment />
               </ProtectedRoute>
             }
           />

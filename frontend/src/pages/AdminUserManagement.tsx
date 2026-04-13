@@ -252,79 +252,84 @@ export default function AdminUserManagement() {
   };
 
   return (
-    <div className="LoginPage">
-      <div className="AdminUserManagement">
-        <h1>User Management</h1>
+    <>
+      <div className="AdminUserManagement-Header">
+        <div className="AdminUserManagement-HeaderLeft">
+          <h1>User Management</h1>
+        </div>
+        <div className="AdminUserManagement-HeaderRight">
+          <Button onClick={handleCreateClick}>Create User</Button>
+        </div>
+      </div>
 
-        {error && <StatusMessage message={error} type="error" />}
-        {success && <StatusMessage message={success} type="success" />}
+      <StatusMessage message={error} type="error" />
+      <StatusMessage message={success} type="success" />
 
-        {formMode !== 'view' && (
-          <div className="AdminUserManagement-FormContainer">
+      {formMode !== 'view' && (
+        <div className="AdminUserManagement-Modal">
+          <div className="AdminUserManagement-ModalContent">
             <h2>
               {formMode === 'create' ? 'Create New User' : 'Edit User'}
             </h2>
 
-            <div className="LoginInner">
-              <div className="LoginInputs">
-                <div className="LoginInputChunk">
-                  <span>Name</span>
+            <div className="AdminUserManagement-FormBody">
+              <div className="AdminUserManagement-FormGroup">
+                <span>Name</span>
+                <Textbox
+                  placeholder="Full name..."
+                  value={formData.name}
+                  onInput={(val) =>
+                    setFormData({ ...formData, name: val })
+                  }
+                  className="AdminUserManagement-Input"
+                />
+              </div>
+
+              <div className="AdminUserManagement-FormGroup">
+                <span>Email</span>
+                <Textbox
+                  type="email"
+                  placeholder="user@example.com..."
+                  value={formData.email}
+                  onInput={(val) =>
+                    setFormData({ ...formData, email: val })
+                  }
+                  className="AdminUserManagement-Input"
+                />
+              </div>
+
+              {formMode === 'create' && (
+                <div className="AdminUserManagement-FormGroup">
+                  <span>Password</span>
                   <Textbox
-                    placeholder="Full name..."
-                    value={formData.name}
+                    type="password"
+                    placeholder="Password (min 6 characters)..."
+                    value={formData.password}
                     onInput={(val) =>
-                      setFormData({ ...formData, name: val })
+                      setFormData({ ...formData, password: val })
                     }
-                    className="LoginInput"
+                    className="AdminUserManagement-Input"
                   />
                 </div>
+              )}
 
-                <div className="LoginInputChunk">
-                  <span>Email</span>
-                  <Textbox
-                    type="email"
-                    placeholder="user@example.com..."
-                    value={formData.email}
-                    onInput={(val) =>
-                      setFormData({ ...formData, email: val })
-                    }
-                    className="LoginInput"
-                  />
-                </div>
-
-                {formMode === 'create' && (
-                  <div className="LoginInputChunk">
-                    <span>Password</span>
-                    <Textbox
-                      type="password"
-                      placeholder="Password (min 6 characters)..."
-                      value={formData.password}
-                      onInput={(val) =>
-                        setFormData({ ...formData, password: val })
-                      }
-                      className="LoginInput"
-                    />
-                  </div>
-                )}
-
-                <div className="LoginInputChunk">
-                  <span>Role</span>
-                  <select
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                    className="AdminUserManagement-RoleSelect"
-                  >
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
+              <div className="AdminUserManagement-FormGroup">
+                <span>Role</span>
+                <select
+                  value={formData.role}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
+                  className="AdminUserManagement-Select"
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
             </div>
 
-            <div className="AdminUserManagement-ButtonGroup">
+            <div className="AdminUserManagement-ModalFooter">
               <Button onClick={handleSubmitForm}>
                 {formMode === 'create' ? 'Create User' : 'Save Changes'}
               </Button>
@@ -333,82 +338,74 @@ export default function AdminUserManagement() {
               </Button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {formMode === 'view' && (
-          <div>
-            <div className="AdminUserManagement-SearchBar">
-              <Textbox
-                placeholder="Search by name, email, or role..."
-                value={searchQuery}
-                onInput={setSearchQuery}
-                className="LoginInput AdminUserManagement-SearchInput"
-              />
-              <Button onClick={handleCreateClick}>Create User</Button>
+      {formMode === 'view' && (
+        <div className="AdminUserManagement-Body">
+          <div className="AdminUserManagement-SearchBar">
+            <Textbox
+              placeholder="Search by name, email, or role..."
+              value={searchQuery}
+              onInput={setSearchQuery}
+              className="AdminUserManagement-SearchInput"
+            />
+          </div>
+
+          {loading ? (
+            <div className="AdminUserManagement-LoadingMessage">
+              Loading users...
             </div>
-
-            {loading ? (
-              <div className="AdminUserManagement-LoadingMessage">
-                Loading users...
-              </div>
-            ) : filteredUsers.length === 0 ? (
-              <div className="AdminUserManagement-EmptyMessage">
-                {users.length === 0
-                  ? 'No users found.'
-                  : 'No users match your search.'}
-              </div>
-            ) : (
-              <div className="AdminUserManagement-TableWrapper">
-                <table className="AdminUserManagement-Table">
-                  <thead className="AdminUserManagement-TableHead">
-                    <tr>
-                      <th>
-                        Name
-                      </th>
-                      <th>
-                        Email
-                      </th>
-                      <th>
-                        Role
-                      </th>
-                      <th>
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="AdminUserManagement-TableBody">
-                    {filteredUsers.map((user) => (
-                      <tr key={user.id}>
-                        <td>{user.name}</td>
-                        <td>{user.email}</td>
-                        <td>
-                          <span
-                            className={`AdminUserManagement-RoleBadge ${user.role}`}
-                          >
-                            {user.role.charAt(0).toUpperCase() +
-                              user.role.slice(1)}
-                          </span>
-                        </td>
-                        <td>
-                          <button
-                            onClick={() => handleEditClick(user)}
-                            className="AdminUserManagement-EditButton"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleResetPasswordClick(user.id, user.name)
-                            }
-                            disabled={user.id === currentUserId}
-                            className="AdminUserManagement-ResetButton"
-                            title={user.id === currentUserId ? 'You cannot reset your own password this way' : ''}
-                          >
-                            Reset Password
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleDeleteUser(user.id, user.name)
+          ) : filteredUsers.length === 0 ? (
+            <div className="AdminUserManagement-EmptyMessage">
+              {users.length === 0
+                ? 'No users found.'
+                : 'No users match your search.'}
+            </div>
+          ) : (
+            <div className="AdminUserManagement-TableWrapper">
+              <table className="AdminUserManagement-Table">
+                <thead className="AdminUserManagement-TableHead">
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="AdminUserManagement-TableBody">
+                  {filteredUsers.map((user) => (
+                    <tr key={user.id}>
+                      <td>{user.name}</td>
+                      <td>{user.email}</td>
+                      <td>
+                        <span
+                          className={`AdminUserManagement-RoleBadge ${user.role}`}
+                        >
+                          {user.role.charAt(0).toUpperCase() +
+                            user.role.slice(1)}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleEditClick(user)}
+                          className="AdminUserManagement-EditButton"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleResetPasswordClick(user.id, user.name)
+                          }
+                          disabled={user.id === currentUserId}
+                          className="AdminUserManagement-ResetButton"
+                          title={user.id === currentUserId ? 'You cannot reset your own password this way' : ''}
+                        >
+                          Reset Password
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleDeleteUser(user.id, user.name)
                             }
                             disabled={user.id === currentUserId}
                             className="AdminUserManagement-DeleteButton"
@@ -433,40 +430,39 @@ export default function AdminUserManagement() {
                 Back to Home
               </Button>
             </div>
-          </div>
-        )}
+        </div>
+      )}
 
-        {passwordReset.isOpen && (
-          <div className="AdminUserManagement-Modal">
-            <div className="AdminUserManagement-ModalContent">
-              <h2>Reset Password for {passwordReset.userName}</h2>
-              <p>Enter a temporary password. The user will be required to change it on next login.</p>
+      {passwordReset.isOpen && (
+        <div className="AdminUserManagement-Modal">
+          <div className="AdminUserManagement-ModalContent">
+            <h2>Reset Password for {passwordReset.userName}</h2>
+            <p>Enter a temporary password. The user will be required to change it on next login.</p>
 
-              <div className="LoginInputChunk" style={{ marginTop: '15px' }}>
-                <span>Temporary Password</span>
-                <Textbox
-                  type="password"
-                  placeholder="Enter temporary password (min 6 characters)..."
-                  value={passwordReset.newPassword}
-                  onInput={(val) =>
-                    setPasswordReset({ ...passwordReset, newPassword: val })
-                  }
-                  className="LoginInput"
-                />
-              </div>
+            <div className="AdminUserManagement-FormGroup" style={{ marginTop: '15px' }}>
+              <span>Temporary Password</span>
+              <Textbox
+                type="password"
+                placeholder="Enter temporary password (min 6 characters)..."
+                value={passwordReset.newPassword}
+                onInput={(val) =>
+                  setPasswordReset({ ...passwordReset, newPassword: val })
+                }
+                className="AdminUserManagement-Input"
+              />
+            </div>
 
-              <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-                <Button onClick={handleResetPasswordSubmit}>
-                  Reset Password
-                </Button>
-                <Button onClick={handleResetPasswordCancel} type="secondary">
-                  Cancel
-                </Button>
-              </div>
+            <div className="AdminUserManagement-ModalFooter">
+              <Button onClick={handleResetPasswordSubmit}>
+                Reset Password
+              </Button>
+              <Button onClick={handleResetPasswordCancel} type="secondary">
+                Cancel
+              </Button>
             </div>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -86,6 +86,7 @@ def create_class():
 
     if not class_name:
         return jsonify({"msg": "Class name is required"}), 400
+  
 
     email = get_jwt_identity()
     user = User.get_by_email(email)

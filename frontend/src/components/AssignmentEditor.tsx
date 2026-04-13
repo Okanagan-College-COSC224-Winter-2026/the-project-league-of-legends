@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './AssignmentEditor.css'
+import DateTimePicker from './DateTimePicker'
 
 interface Assignment {
   id: number
@@ -63,12 +64,12 @@ export default function AssignmentEditor(props: Props) {
         </div>
 
         <div className="form-group">
-          <label>Due Date</label>
-          <input
-            type="datetime-local"
-            value={dueDate ? new Date(dueDate).toISOString().slice(0, 16) : ''}
-            onChange={(e) => setDueDate(e.target.value)}
+          <DateTimePicker
+            label="Due Date"
+            value={dueDate}
+            onChange={setDueDate}
             disabled={loading}
+            includeTime={false}
           />
         </div>
 

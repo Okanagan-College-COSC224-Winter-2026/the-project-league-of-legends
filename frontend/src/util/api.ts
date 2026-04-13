@@ -838,3 +838,80 @@ export const resetUserPassword = async (userId: number, newPassword: string) => 
 
   return await response.json();
 };
+
+// Student Enrollment Management (Admin)
+export const getAllStudents = async () => {
+  const response = await fetch(`${BASE_URL}/admin/students`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const getAllClassesWithStudents = async () => {
+  const response = await fetch(`${BASE_URL}/admin/classes-with-students`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const enrollStudentInClass = async (studentId: number, classId: number) => {
+  const response = await fetch(`${BASE_URL}/admin/enroll-student`, {
+    method: "POST",
+    body: JSON.stringify({ student_id: studentId, class_id: classId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const unenrollStudentFromClass = async (studentId: number, classId: number) => {
+  const response = await fetch(`${BASE_URL}/admin/unenroll-student`, {
+    method: "POST",
+    body: JSON.stringify({ student_id: studentId, class_id: classId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};

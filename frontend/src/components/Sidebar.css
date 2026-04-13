@@ -23,6 +23,23 @@
   height: 90px;
 }
 
+.Sidebarlogout {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.Sidebarlogout img {
+  width: 35px;
+  height: 35px;
+}
+
 .SidebarTop {
   display: flex;
   flex-direction: column;
@@ -44,16 +61,19 @@
 .SidebarRow {
   display: flex;
   flex-direction: column;
-
   padding: 0.25rem 0;
+}
+.SidebarRow:hover{
+  background-color: var(--background-tertiary);
 }
 
 .SidebarRow a {
   text-decoration: none;
   color: var(--text-primary);
   text-align: center;
+  font-size: large;
 }
 
 .SidebarRow.selected {
-  background-color: var(--background-tertiary);
+  background-color: white;
 }

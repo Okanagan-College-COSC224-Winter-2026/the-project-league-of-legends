@@ -1,0 +1,116 @@
+.datetime-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.datetime-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.datetime-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+}
+
+.datetime-input {
+  padding: 10px;
+  border: 1px solid var(--background-tertiary);
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background-color: var(--background-secondary);
+  transition: all 0.2s;
+  min-width: 200px;
+}
+
+.datetime-input:focus {
+  outline: none;
+  border-color: var(--button-primary);
+  background-color: var(--background-primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.datetime-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.datetime-display {
+  flex: 1;
+  padding: 10px;
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-tertiary);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 150px;
+}
+
+.datetime-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.datetime-btn {
+  padding: 8px 12px;
+  border: 1px solid var(--button-secondary);
+  background-color: transparent;
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.datetime-btn:hover:not(:disabled) {
+  background-color: var(--background-secondary);
+  border-color: var(--button-primary);
+  color: var(--button-primary);
+}
+
+.datetime-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.datetime-btn-clear {
+  padding: 8px 10px;
+  min-width: auto;
+}
+
+.datetime-btn-today {
+  padding: 8px 16px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .datetime-input-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .datetime-input,
+  .datetime-display {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .datetime-buttons {
+    width: 100%;
+  }
+
+  .datetime-btn {
+    flex: 1;
+  }
+}

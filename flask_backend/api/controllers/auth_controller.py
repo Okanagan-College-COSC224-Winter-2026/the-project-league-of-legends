@@ -44,7 +44,7 @@ def register():
     name = data["name"]
     password = data["password"]
 
-    existing_user = User.get_by_email(email)
+    existing_user = _normalize_email(User.get_by_email(email))
 
     # Case 1: brand new registration (not on roster yet is OK)
     if not existing_user:
