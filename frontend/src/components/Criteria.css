@@ -9,24 +9,29 @@
 .criteriaTable {
     text-align: center;
     width: 100%;
-    max-width: 700px;
+    max-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 .criterionHead {
     background-color: var(--background-tertiary);
-    text-align: center;
-    padding: 8px;
-    font-size: 15px;
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 14px;
     font-weight: bold;
     color: var(--text-primary);
-    width: 50%
+    width: auto;
+    flex: 0 0 34%;
+    min-width: 0;
 }
 
-td {
+.criteriaTable td {
     flex-grow: 1; 
     text-align: center;
-    padding: 8px;
+    padding: 10px 12px;
     box-sizing: border-box; 
+    min-width: 0;
 }
 
 .criteriaText {
@@ -46,16 +51,22 @@ td {
 }
 
 .criterionRow {
-    height: 100px;
+    min-height: 92px;
     display: flex;
+    align-items: stretch;
 }
 
 .criteriaTable,
 .criterionData,
 .criterionHead, 
-td {
+.criteriaTable td {
     border: 1px solid black;
     border-collapse: collapse;
+}
+
+.criterionData {
+    flex: 1 1 0;
+    min-width: 0;
 }
 
 .clickedCell {

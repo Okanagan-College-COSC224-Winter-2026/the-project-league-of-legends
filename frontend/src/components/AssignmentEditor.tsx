@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './AssignmentEditor.css'
+import DateTimePicker from './DateTimePicker'
 
 interface Assignment {
   id: number
@@ -48,59 +49,64 @@ export default function AssignmentEditor(props: Props) {
   }
 
   return (
-    <div className="modal-overlay" onClick={props.onCancel}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <h2>Edit Assignment</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-
-        <div className="form-group">
-          <label>Assignment Name *</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Assignment name"
-            disabled={loading}
-          />
+    <div className="CreateAssignmentModal-Overlay" onClick={props.onCancel}>
+      <div className="CreateAssignmentModal-Content AssignmentEditor-Content" onClick={(e) => e.stopPropagation()}>
+        <div className="CreateAssignmentModal-Header">
+          <div>
+            <h2>Edit Assignment</h2>
+            <p>Update the assignment details, deadline, notes, or attached file.</p>
+          </div>
         </div>
 
-        <div className="form-group">
-          <label>Due Date</label>
-          <input
-            type="datetime-local"
-            value={dueDate ? new Date(dueDate).toISOString().slice(0, 16) : ''}
-            onChange={(e) => setDueDate(e.target.value)}
+        {error && <div className="CreateAssignmentModal-Error">{error}</div>}
+
+        <div className="CreateAssignmentModal-Body">
+          <label className="CreateAssignmentModal-Field">
+            <span>Assignment Name</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Assignment name"
+              disabled={loading}
+            />
+          </label>
+
+          <DateTimePicker
+            label="Due Date"
+            value={dueDate}
+            onChange={setDueDate}
+            includeTime={true}
             disabled={loading}
           />
+
+          <label className="CreateAssignmentModal-Field">
+            <span>Instructions or Rubric</span>
+            <textarea
+              value={rubric}
+              onChange={(e) => setRubric(e.target.value)}
+              placeholder="Add rubric or peer review settings..."
+              rows={6}
+              disabled={loading}
+            />
+          </label>
+
+          <label className="CreateAssignmentModal-Field">
+            <span>Replace Assignment File</span>
+            <input
+              type="file"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              disabled={loading}
+            />
+            <small>{file ? `Selected file: ${file.name}` : 'Optional: upload a replacement file.'}</small>
+          </label>
         </div>
 
-        <div className="form-group">
-          <label>Rubric/Instructions</label>
-          <textarea
-            value={rubric}
-            onChange={(e) => setRubric(e.target.value)}
-            placeholder="Add rubric or peer review settings..."
-            rows={6}
-            disabled={loading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Replace Assignment File (Optional)</label>
-          <input
-            type="file"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            disabled={loading}
-          />
-          {file && <small>Selected file: {file.name}</small>}
-        </div>
-
-        <div className="modal-actions">
-          <button onClick={props.onCancel} disabled={loading} className="btn-cancel">
+        <div className="CreateAssignmentModal-Footer">
+          <button onClick={props.onCancel} disabled={loading} className="CreateAssignmentModal-Secondary">
             Cancel
           </button>
-          <button onClick={handleSave} disabled={loading} className="btn-save">
+          <button onClick={handleSave} disabled={loading} className="CreateAssignmentModal-Primary">
             {loading ? 'Saving...' : 'Save Changes'}
           </button>
         </div>

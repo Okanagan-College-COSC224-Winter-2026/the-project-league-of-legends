@@ -16,6 +16,7 @@ import RegisterPage from "./pages/RegisterPage";
 import ChangePassword from "./pages/ChangePassword";
 import CreateTeacher from "./pages/CreateTeacher";
 import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminStudentEnrollment from "./pages/AdminStudentEnrollment";
 import Dashboard from "./pages/Dashboard";
 
 function AppContent() {
@@ -63,6 +64,15 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <AdminUserManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/student-enrollment"
+            element={
+              <ProtectedRoute>
+                <AdminStudentEnrollment />
               </ProtectedRoute>
             }
           />

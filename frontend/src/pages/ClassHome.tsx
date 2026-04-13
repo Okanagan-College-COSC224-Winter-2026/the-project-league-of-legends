@@ -1,12 +1,11 @@
 // src/pages/ClassHome.tsx
 import AssignmentCard from "../components/AssignmentCard";
-import Button from "../components/Button";
+import CreateAssignmentModal from "../components/CreateAssignmentModal";
 import "./ClassHome.css";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import TabNavigation from "../components/TabNavigation";
 import { importCSV } from "../util/csv";
-import Textbox from "../components/Textbox";
 import StatusMessage from "../components/StatusMessage";
 import { isTeacher } from "../util/login";
 
@@ -60,8 +59,8 @@ function groupAssignments(
     const noDueDate = items.filter((assignment) => !assignment.due_date);
 
     return [
-      { key: "scheduled", title: "Scheduled", assignments: scheduled },
-      { key: "no-due-date", title: "No Due Date", assignments: noDueDate },
+      { key: "scheduled", title: "Assignments", assignments: scheduled },
+      { key: "no-due-date", title: "No Due Date Yet", assignments: noDueDate },
     ].filter((section) => section.assignments.length > 0);
   }
 
@@ -91,10 +90,10 @@ export default function ClassHome() {
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [assignmentStatuses, setAssignmentStatuses] = useState<Record<number, AssignmentStatus>>({});
-  const [newAssignmentName, setNewAssignmentName] = useState("");
   const [className, setClassName] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"error" | "success">("error");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [editingAssignment, setEditingAssignment] =
     useState<Assignment | null>(null);
@@ -165,7 +164,12 @@ export default function ClassHome() {
     };
   }, [id, isTeacherView]);
 
-  const tryCreateAssingment = async () => {
+  const tryCreateAssingment = async (data: {
+    name: string;
+    dueDate: string;
+    comments: string;
+    file: File | null;
+  }) => {
     try {
       setStatusMessage("");
 
@@ -173,7 +177,13 @@ export default function ClassHome() {
         throw new Error("Invalid class id");
       }
 
-      const response = await createAssignment(idNew, newAssignmentName);
+      const response = await createAssignment(
+        idNew,
+        data.name,
+        data.dueDate || null,
+        data.comments || null,
+        data.file,
+      );
       const createdAssignment = response?.assignment;
 
       if (!createdAssignment?.id) {
@@ -181,13 +191,14 @@ export default function ClassHome() {
       }
 
       setAssignments((prev) => sortAssignmentsByDueDate([...prev, createdAssignment]));
-      setNewAssignmentName("");
+      setShowCreateModal(false);
       setStatusType("success");
       setStatusMessage("Assignment created successfully!");
     } catch (error) {
       console.error("Error creating assignment:", error);
       setStatusType("error");
-      setStatusMessage("Error creating assignment.");
+      setStatusMessage(error instanceof Error ? error.message : "Error creating assignment.");
+      throw error;
     }
   };
 
@@ -250,7 +261,13 @@ export default function ClassHome() {
       {isTeacher() ? (
         <div className="ClassPageActions">
           <button
-            className="ClassHeaderCsvButton"
+            className="ClassPageActionButton ClassPageActionButton-primary"
+            onClick={() => setShowCreateModal(true)}
+          >
+            Create Assignment
+          </button>
+          <button
+            className="ClassPageActionButton ClassPageActionButton-secondary"
             onClick={() => importCSV(id as string, {
               onSuccess: async () => {
                 setStatusType("success");
@@ -276,7 +293,10 @@ export default function ClassHome() {
           ) : (
             <div className="AssignmentSections">
               {assignmentSections.map((section) => (
-                <section key={section.key} className="AssignmentSection">
+                <section
+                  key={section.key}
+                  className={`AssignmentSection ${isTeacherView ? "AssignmentSection-teacher" : ""}`}
+                >
                   <div className="AssignmentSectionHeader">
                     <h3>{section.title}</h3>
                     <span>{section.assignments.length}</span>
@@ -287,6 +307,7 @@ export default function ClassHome() {
                       <li key={assignment.id}>
                         <AssignmentCard
                           id={assignment.id}
+                          name={assignment.name}
                           dueDate={assignment.due_date ?? null}
                           status={assignmentStatuses[assignment.id] ?? null}
                           onEdit={() => setEditingAssignment(assignment)}
@@ -303,19 +324,14 @@ export default function ClassHome() {
             </div>
           )}
         </div>
-
-        {isTeacherView ? (
-          <div className="AssInputChunk">
-            <span>New Assignment Name:</span>
-            <Textbox
-              placeholder="New Assignment..."
-              onInput={setNewAssignmentName}
-              className="AssignmentInput"
-            />
-            <Button onClick={tryCreateAssingment}>Add</Button>
-          </div>
-        ) : null}
       </div>
+
+      {showCreateModal && (
+        <CreateAssignmentModal
+          onCreate={tryCreateAssingment}
+          onCancel={() => setShowCreateModal(false)}
+        />
+      )}
 
       {editingAssignment && (
         <AssignmentEditor

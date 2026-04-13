@@ -15,7 +15,9 @@ export default function Sidebar() {
         <SidebarRow onClick={() => logout()} href="/" selected={false}>
           Logout
         </SidebarRow>
+      </div>
 
+      <div className="SidebarMiddle">
         <SidebarRow selected={location === "/home"} href="/home">
           Home
         </SidebarRow>
@@ -37,15 +39,14 @@ export default function Sidebar() {
         </SidebarRow>
       )}
 
-        <SidebarRow selected={location.includes("/profile")} href="/profile/1">
-          My Info
-        </SidebarRow>
-          <SidebarRow 
-          selected={location === '/change-password'} 
-          href="/change-password"
-        >
-          Change Password
-        </SidebarRow>
+        {isAdmin() && (
+          <SidebarRow
+            selected={location === "/student-enrollment"}
+            href="/student-enrollment"
+          >
+            Student Enrollment
+          </SidebarRow>
+        )}
 
         {isAdmin() && (
           <SidebarRow 
@@ -55,6 +56,16 @@ export default function Sidebar() {
             Manage Users
           </SidebarRow>
         )}
+
+        <SidebarRow selected={location.includes("/profile")} href="/profile/1">
+          My Info
+        </SidebarRow>
+        <SidebarRow
+          selected={location === '/change-password'}
+          href="/change-password"
+        >
+          Change Password
+        </SidebarRow>
       </div>
     </div>
   );

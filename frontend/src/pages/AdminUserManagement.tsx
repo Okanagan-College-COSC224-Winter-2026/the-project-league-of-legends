@@ -253,78 +253,90 @@ export default function AdminUserManagement() {
 
   return (
     <div className="AdminUserManagement-Page">
+      <div className="AdminUserManagement-Header">
+        <div className="AdminUserManagement-HeaderLeft">
+          <p className="AdminUserManagement-Eyebrow">Admin Tools</p>
+          <h1>User Management</h1>
+          <p className="AdminUserManagement-Subtitle">
+            Create accounts, update roles, and manage access without changing the current workflow.
+          </p>
+        </div>
+        {formMode === 'view' && (
+          <div className="AdminUserManagement-HeaderRight">
+            <Button onClick={handleCreateClick}>Create User</Button>
+          </div>
+        )}
+      </div>
+
+      <StatusMessage message={error} type="error" />
+      <StatusMessage message={success} type="success" />
+
       <div className="AdminUserManagement">
-        <h1>User Management</h1>
-
-        {error && <StatusMessage message={error} type="error" />}
-        {success && <StatusMessage message={success} type="success" />}
-
         {formMode !== 'view' && (
-          <div className="AdminUserManagement-FormContainer">
+          <div className="AdminUserManagement-Modal">
+            <div className="AdminUserManagement-ModalContent">
             <h2>
               {formMode === 'create' ? 'Create New User' : 'Edit User'}
             </h2>
 
-            <div className="LoginInner">
-              <div className="LoginInputs">
-                <div className="LoginInputChunk">
-                  <span>Name</span>
+            <div className="AdminUserManagement-FormBody">
+              <div className="AdminUserManagement-FormGroup">
+                <span>Name</span>
+                <Textbox
+                  placeholder="Full name..."
+                  value={formData.name}
+                  onInput={(val) =>
+                    setFormData({ ...formData, name: val })
+                  }
+                  className="AdminUserManagement-Input"
+                />
+              </div>
+
+              <div className="AdminUserManagement-FormGroup">
+                <span>Email</span>
+                <Textbox
+                  type="email"
+                  placeholder="user@example.com..."
+                  value={formData.email}
+                  onInput={(val) =>
+                    setFormData({ ...formData, email: val })
+                  }
+                  className="AdminUserManagement-Input"
+                />
+              </div>
+
+              {formMode === 'create' && (
+                <div className="AdminUserManagement-FormGroup">
+                  <span>Password</span>
                   <Textbox
-                    placeholder="Full name..."
-                    value={formData.name}
+                    type="password"
+                    placeholder="Password (min 6 characters)..."
+                    value={formData.password}
                     onInput={(val) =>
-                      setFormData({ ...formData, name: val })
+                      setFormData({ ...formData, password: val })
                     }
-                    className="LoginInput"
+                    className="AdminUserManagement-Input"
                   />
                 </div>
+              )}
 
-                <div className="LoginInputChunk">
-                  <span>Email</span>
-                  <Textbox
-                    type="email"
-                    placeholder="user@example.com..."
-                    value={formData.email}
-                    onInput={(val) =>
-                      setFormData({ ...formData, email: val })
-                    }
-                    className="LoginInput"
-                  />
-                </div>
-
-                {formMode === 'create' && (
-                  <div className="LoginInputChunk">
-                    <span>Password</span>
-                    <Textbox
-                      type="password"
-                      placeholder="Password (min 6 characters)..."
-                      value={formData.password}
-                      onInput={(val) =>
-                        setFormData({ ...formData, password: val })
-                      }
-                      className="LoginInput"
-                    />
-                  </div>
-                )}
-
-                <div className="LoginInputChunk">
-                  <span>Role</span>
-                  <select
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                    className="AdminUserManagement-RoleSelect"
-                  >
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
+              <div className="AdminUserManagement-FormGroup">
+                <span>Role</span>
+                <select
+                  value={formData.role}
+                  onChange={(e) =>
+                    setFormData({ ...formData, role: e.target.value })
+                  }
+                  className="AdminUserManagement-Select"
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="admin">Admin</option>
+                </select>
               </div>
             </div>
 
-            <div className="AdminUserManagement-ButtonGroup">
+            <div className="AdminUserManagement-ModalFooter">
               <Button onClick={handleSubmitForm}>
                 {formMode === 'create' ? 'Create User' : 'Save Changes'}
               </Button>
@@ -333,18 +345,18 @@ export default function AdminUserManagement() {
               </Button>
             </div>
           </div>
+          </div>
         )}
 
         {formMode === 'view' && (
-          <div>
+          <div className="AdminUserManagement-Body">
             <div className="AdminUserManagement-SearchBar">
               <Textbox
                 placeholder="Search by name, email, or role..."
                 value={searchQuery}
                 onInput={setSearchQuery}
-                className="LoginInput AdminUserManagement-SearchInput"
+                className="AdminUserManagement-SearchInput"
               />
-              <Button onClick={handleCreateClick}>Create User</Button>
             </div>
 
             {loading ? (
@@ -442,7 +454,7 @@ export default function AdminUserManagement() {
               <h2>Reset Password for {passwordReset.userName}</h2>
               <p>Enter a temporary password. The user will be required to change it on next login.</p>
 
-              <div className="LoginInputChunk" style={{ marginTop: '15px' }}>
+              <div className="AdminUserManagement-FormGroup" style={{ marginTop: '15px' }}>
                 <span>Temporary Password</span>
                 <Textbox
                   type="password"
@@ -451,11 +463,11 @@ export default function AdminUserManagement() {
                   onInput={(val) =>
                     setPasswordReset({ ...passwordReset, newPassword: val })
                   }
-                  className="LoginInput"
+                  className="AdminUserManagement-Input"
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+              <div className="AdminUserManagement-ModalFooter">
                 <Button onClick={handleResetPasswordSubmit}>
                   Reset Password
                 </Button>

@@ -177,6 +177,11 @@ export default function Assignment() {
   };
 
   const nameFromId = (userId: number) => {
+    const groupMemberName = stuGroup.find((member) => member.userID === userId)?.name;
+    if (groupMemberName) {
+      return groupMemberName;
+    }
+
     return (
       classMembers.find((member) => member.id === userId)?.name ||
       `User ${userId}`

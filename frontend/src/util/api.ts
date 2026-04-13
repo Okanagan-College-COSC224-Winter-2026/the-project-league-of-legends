@@ -233,10 +233,17 @@ export const listStuGroup = async (assignmentId: number, studentId: number) => {
     id?: number;
     groupID?: number;
     assignmentID?: number;
+    name?: string;
+    email?: string;
+    role?: "student" | "teacher" | "admin";
   }) => ({
     userID: student.userID ?? student.id,
     groupID: student.groupID ?? -1,
     assignmentID: student.assignmentID ?? assignmentId,
+    id: student.id,
+    name: student.name,
+    email: student.email,
+    role: student.role,
   }));
 };
 
@@ -1060,6 +1067,80 @@ export const resetUserPassword = async (userId: number, newPassword: string) => 
   }
 
   return await response.json();
+};
+
+export const getAllStudents = async () => {
+  const response = await apiFetch("/admin/students", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const getAllClassesWithStudents = async () => {
+  const response = await apiFetch("/admin/classes-with-students", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const enrollStudentInClass = async (studentId: number, classId: number) => {
+  const response = await apiFetch("/admin/enroll-student", {
+    method: "POST",
+    body: JSON.stringify({ student_id: studentId, class_id: classId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  maybeHandleExpire(response);
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.msg || `Response status: ${response.status}`);
+  }
+
+  return data;
+};
+
+export const unenrollStudentFromClass = async (studentId: number, classId: number) => {
+  const response = await apiFetch("/admin/unenroll-student", {
+    method: "POST",
+    body: JSON.stringify({ student_id: studentId, class_id: classId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  maybeHandleExpire(response);
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.msg || `Response status: ${response.status}`);
+  }
+
+  return data;
 };
 
 export const getMyProfile = async () => {

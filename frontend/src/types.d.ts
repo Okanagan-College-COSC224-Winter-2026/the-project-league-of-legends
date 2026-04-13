@@ -15,6 +15,10 @@ interface StudentGroups {
   groupID: number;
   userID: number;
   assignmentID: number;
+  id?: number;
+  name?: string;
+  email?: string;
+  role?: "student" | "teacher" | "admin";
 }
 
 interface CourseGroup {
@@ -31,6 +35,10 @@ interface GroupTableValue {
   groupID: number;
   userID: number;
   assignmentID: number;
+  id?: number;
+  name?: string;
+  email?: string;
+  role?: "student" | "teacher" | "admin";
 }
 
 interface Criterion {

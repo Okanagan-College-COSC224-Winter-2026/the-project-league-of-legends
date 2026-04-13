@@ -93,6 +93,13 @@
 
 .AssignmentHeader {
   margin-bottom: 1rem;
+  padding-left: 0.85rem;
+}
+
+.AssignmentHeader h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
 }
 
 .assignmentPage {
@@ -302,6 +309,14 @@
 }
 
 @media (max-width: 640px) {
+  .AssignmentHeader {
+    padding-left: 0.4rem;
+  }
+
+  .AssignmentHeader h2 {
+    font-size: 1.6rem;
+  }
+
   .assignmentButtonRow {
     flex-direction: column;
   }

@@ -31,7 +31,8 @@
     background: #ffffff;
     color: var(--text-primary);
     border-radius: 999px;
-    padding: 8px 14px;
+    padding: 10px 16px;
+    min-height: 42px;
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.2;

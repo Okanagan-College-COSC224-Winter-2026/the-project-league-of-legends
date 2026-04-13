@@ -38,6 +38,13 @@
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
 }
 
+.AssignmentSection-teacher {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
 .AssignmentSectionHeader {
     display: flex;
     align-items: center;
@@ -45,6 +52,11 @@
     padding: 2px 6px 10px;
     border-bottom: 1px solid rgba(38, 57, 77, 0.08);
     margin-bottom: 8px;
+}
+
+.AssignmentSection-teacher .AssignmentSectionHeader {
+    padding: 2px 2px 12px;
+    margin-bottom: 12px;
 }
 
 .AssignmentSectionHeader h3 {
@@ -92,17 +104,25 @@
     min-width: 0;
 }
 
-.ClassHeaderCsvButton {
+.ClassPageActionButton {
     appearance: none;
     border: 1px solid rgba(38, 57, 77, 0.14);
-    background: #ffffff;
     color: var(--text-primary);
     border-radius: 999px;
-    padding: 8px 14px;
+    padding: 10px 16px;
+    min-height: 42px;
     font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.2;
     box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.ClassPageActionButton-secondary {
+    background: #ffffff;
+}
+
+.ClassPageActionButton-primary {
+    background: var(--button-primary);
 }
 
 .ClassPageActions {
@@ -111,45 +131,20 @@
     margin: 0 auto;
     display: flex;
     justify-content: flex-end;
+    gap: 12px;
     padding: 6px 20px 0;
     box-sizing: border-box;
 }
 
-.ClassHeaderCsvButton:hover {
+.ClassPageActionButton:hover {
     cursor: pointer;
+    filter: brightness(1.03);
+}
+
+.ClassPageActionButton-secondary:hover {
     background: var(--background-secondary);
 }
 
-
-.AssInputChunk {
-    width: 100%;
-    background-color: #fff;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 18px;
-    border-radius: 14px;
-    border: 1px solid rgba(38, 57, 77, 0.08);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
-    position: sticky;
-    top: 16px;
-    box-sizing: border-box;
-}
-
-.AssInputChunk span {
-    font-weight: 700;
-}
-
-  
-.AssInput {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  
-    margin-bottom: 12px;
-  
-    width: 100%;
-  }
 
 @media (max-width: 900px) {
     .Class {
@@ -161,11 +156,6 @@
         padding: 16px 14px 8px;
     }
 
-    .AssInputChunk {
-        width: 100%;
-        position: static;
-        order: -1;
-    }
 }
 
 @media (max-width: 640px) {
@@ -177,6 +167,7 @@
 
     .ClassPageActions {
         justify-content: flex-start;
+        flex-wrap: wrap;
         padding: 6px 14px 0;
     }
 

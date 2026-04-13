@@ -57,6 +57,20 @@ def _serialize_users(user_ids):
     return users
 
 
+def _serialize_group_member(member):
+    user = User.get_by_id(member.userID)
+    payload = {
+        "userID": member.userID,
+        "groupID": member.groupID,
+        "assignmentID": member.assignmentID,
+    }
+
+    if user:
+        payload.update(UserListSchema().dump(user))
+
+    return payload
+
+
 @bp.route("/create", methods=["POST"])
 @jwt_teacher_required
 def create_group():
@@ -160,14 +174,7 @@ def list_student_group(assignment_id, student_id):
     ).all()
     return (
         jsonify(
-            [
-                {
-                    "userID": member.userID,
-                    "groupID": member.groupID,
-                    "assignmentID": member.assignmentID,
-                }
-                for member in member_rows
-            ]
+            [_serialize_group_member(member) for member in member_rows]
         ),
         200,
     )

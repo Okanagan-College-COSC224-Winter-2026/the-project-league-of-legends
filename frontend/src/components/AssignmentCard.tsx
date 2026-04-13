@@ -3,6 +3,7 @@ import { useState } from 'react'
 
 interface Props {
   id: number | string
+  name?: string
   children?: React.ReactNode
   dueDate?: string | null
   status?: 'complete' | 'late' | 'upcoming' | null
@@ -13,15 +14,25 @@ interface Props {
 
 export default function AssignmentCard(props: Props) {
   const [showActions, setShowActions] = useState(false)
-  const formattedDueDate = props.dueDate
-    ? new Date(props.dueDate).toLocaleString([], {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-      })
-    : 'No due date'
+  const formattedDueDate =
+    props.dueDate && !Number.isNaN(new Date(props.dueDate).getTime())
+      ? new Date(props.dueDate).toLocaleString([], {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+        })
+      : 'No due date'
+
+  const statusLabel =
+    props.status === 'complete'
+      ? 'Complete'
+      : props.status === 'late'
+        ? 'Late'
+        : props.status === 'upcoming'
+          ? 'Upcoming'
+          : null
 
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -42,7 +53,7 @@ export default function AssignmentCard(props: Props) {
   return (
     <div
       onClick={handleNavigate}
-      className='A_Card'
+      className={`A_Card ${props.isTeacher ? 'teacher-card' : ''}`}
       onMouseEnter={() => props.isTeacher && setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
     >
@@ -50,18 +61,17 @@ export default function AssignmentCard(props: Props) {
       <div className="card-content">
         <div className="assignment-card-main">
           <div className="assignment-card-header">
-            <div className="assignment-card-title">{props.children}</div>
-            {props.status && (
+            <div className="assignment-card-title">{props.name ?? props.children}</div>
+            {statusLabel && (
               <span className={`assignment-status assignment-status-${props.status}`}>
-                {props.status === 'complete'
-                  ? 'Complete'
-                  : props.status === 'late'
-                    ? 'Late'
-                    : 'Upcoming'}
+                {statusLabel}
               </span>
             )}
           </div>
-          <div className="assignment-card-meta">Due: {formattedDueDate}</div>
+          <div className="assignment-card-metaRow">
+            <div className="assignment-card-meta">Due: {formattedDueDate}</div>
+            <div className="assignment-card-meta subtle">Open assignment</div>
+          </div>
         </div>
       </div>
       

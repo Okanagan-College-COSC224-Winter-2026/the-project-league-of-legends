@@ -5,38 +5,50 @@
   align-items: center;
   color: var(--text-primary);
   position: relative;
-  padding: 4px;
+  padding: 12px 14px;
 
   width: 95%;
   height:auto;
 
-  border-radius: 6px;
+  border-radius: 14px;
+  border: 1px solid rgba(38, 57, 77, 0.08);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
 
   font-weight: bold;
   font-size: 1rem;
   text-align: left;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.A_Card.teacher-card {
+  padding-right: 92px;
 }
 
 .A_Card img {
   width: 40px;
   height: 40px;
+  margin-right: 12px;
 }
 
 /*TODO: add disabled functionality */
 .A_Card:hover{
   cursor: pointer;
-  background-color: var(--background-secondary);
+  border-color: #93c5fd;
+  box-shadow: 0 12px 28px rgba(59, 130, 246, 0.12);
+  transform: translateY(-1px);
 }
 
 
 .card-content {
   flex: 1;
+  min-width: 0;
 }
 
 .assignment-card-main {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .assignment-card-header {
@@ -47,13 +59,27 @@
 }
 
 .assignment-card-title {
-  font-weight: bold;
+  font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .assignment-card-meta {
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 400;
   color: var(--text-secondary);
+}
+
+.assignment-card-metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.assignment-card-meta.subtle {
+  font-size: 0.82rem;
 }
 
 .assignment-status {
@@ -86,20 +112,31 @@
   display: flex;
   gap: 5px;
   position: absolute;
-  top: 50%;
+  top: 14px;
   right: 10px;
-  transform: translateY(-50%);
+  transform: none;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   padding: 6px 8px;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 999px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
 }
 
 @media (max-width: 720px) {
+  .A_Card.teacher-card {
+    padding-right: 14px;
+    padding-bottom: 58px;
+  }
+
   .assignment-card-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .card-actions {
+    top: auto;
+    bottom: 12px;
+    right: 12px;
   }
 }
 
@@ -107,9 +144,9 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 17px;
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: 999px;
   transition: background 0.2s;
 }
 
