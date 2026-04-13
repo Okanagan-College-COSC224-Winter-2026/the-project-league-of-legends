@@ -221,7 +221,7 @@ export default function AdminStudentEnrollment() {
                                 <li key={c.id}>
                                   <div className="AdminStudentEnrollment-CourseInfo">
                                     <span className="AdminStudentEnrollment-CourseName">{c.name}</span>
-                                    <span className="AdminStudentEnrollment-TeacherName">by {c.teacher?.name || 'Unknown'}</span>
+                                    <span className="AdminStudentEnrollment-TeacherName">by {c.teacher_name}</span>
                                   </div>
                                   <button
                                     className="AdminStudentEnrollment-EnrollBtn"
