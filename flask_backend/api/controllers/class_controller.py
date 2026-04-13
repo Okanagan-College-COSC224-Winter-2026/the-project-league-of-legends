@@ -218,11 +218,9 @@ def get_class_members(class_id: int):
     if not requester:
         return jsonify({"msg": "User not found"}), 404
 
-    is_owner_teacher = requester.is_teacher() and course.teacherID == requester.id
-    is_admin = requester.is_admin()
-
-    if not (is_owner_teacher or is_admin):
-        return jsonify({"msg": "Unauthorized"}), 403
+    # Allow any enrolled user (student, teacher, admin) to view members
+    # Optionally, you could check if the requester is enrolled in the course
+    # For now, allow all authenticated users
 
     members = (
         db.session.query(User)
@@ -381,7 +379,7 @@ def enroll_students():
         name = student_info["name"]
         student = User.get_by_email(student_email)
 
-        # If student already has an account, DO NOT overwrite password.
+        # If student already has an account, set role to student and DO NOT overwrite password.
         # If they don't exist, create a placeholder roster account.
         if not student:
             student = User(
@@ -393,6 +391,11 @@ def enroll_students():
             )
             db.session.add(student)
             db.session.commit()
+        else:
+            # Update role to student if not already
+            if student.role != "student":
+                student.role = "student"
+                db.session.commit()
 
         enrollment = User_Course.get(student.id, class_id)
         if not enrollment:

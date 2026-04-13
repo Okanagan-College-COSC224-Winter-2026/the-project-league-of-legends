@@ -24,6 +24,7 @@ type AssignmentUpdate = {
   name?: string;
   due_date?: string | null;
   rubric?: string | null;
+  file?: File | null;
 };
 
 export default function ClassHome() {
