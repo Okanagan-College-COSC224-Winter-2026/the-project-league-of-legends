@@ -18,7 +18,8 @@
 .table .groupNames {
   align-items: center;
   justify-content: center;
-  background: #eee;
+
+  background: var(--background-secondary);
   padding: 4px 0;
 }
 
@@ -26,7 +27,7 @@
   padding: 8px;
   border: none;
   background-color: var(--button-primary);
-  color: #fff;
+  color: var(--background-primary);
   font-size: 16px;
   cursor: pointer;
   transition: all 0.1s ease-in-out;

@@ -1,17 +1,16 @@
 // src/pages/ClassHome.tsx
 import AssignmentCard from "../components/AssignmentCard";
 import Button from "../components/Button";
+import CreateAssignmentModal from "../components/CreateAssignmentModal";
 import "./ClassHome.css";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import TabNavigation from "../components/TabNavigation";
 import { importCSV } from "../util/csv";
-import Textbox from "../components/Textbox";
 import StatusMessage from "../components/StatusMessage";
 import { isTeacher } from "../util/login";
 
 import {
-  createAssignment,
   deleteAssignment,
   editAssignment,
   listAssignments,
@@ -33,10 +32,10 @@ export default function ClassHome() {
   const idNew = Number(id);
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [newAssignmentName, setNewAssignmentName] = useState("");
   const [className, setClassName] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [statusType, setStatusType] = useState<"error" | "success">("error");
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const [editingAssignment, setEditingAssignment] =
     useState<Assignment | null>(null);
@@ -47,16 +46,24 @@ export default function ClassHome() {
     (async () => {
       if (!id) return;
 
-      const resp = await listAssignments(String(id));
-      const classes = await listClasses();
-      const currentClass = classes.find(
-        (c: { id: number }) => c.id === Number(id)
-      );
+      try {
+        const resp = await listAssignments(String(id));
+        const classes = await listClasses();
+        const currentClass = classes.find(
+          (c: { id: number }) => c.id === Number(id)
+        );
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      setAssignments(resp);
-      setClassName(currentClass?.name || null);
+        setAssignments(resp || []);
+        setClassName(currentClass?.name || null);
+      } catch (error) {
+        console.error("Error loading class data:", error);
+        if (!cancelled) {
+          setStatusMessage("Error loading assignments");
+          setStatusType("error");
+        }
+      }
     })();
 
     return () => {
@@ -64,7 +71,12 @@ export default function ClassHome() {
     };
   }, [id]);
 
-  const tryCreateAssingment = async () => {
+  const tryCreateAssingment = async (data: {
+    name: string
+    startDate: string
+    dueDate: string
+    comments: string
+  }) => {
     try {
       setStatusMessage("");
 
@@ -72,15 +84,34 @@ export default function ClassHome() {
         throw new Error("Invalid class id");
       }
 
-      const response = await createAssignment(idNew, newAssignmentName);
-      const createdAssignment = response?.assignment;
+      const response = await fetch(`http://localhost:5000/assignment/create_assignment`, {
+        method: "POST",
+        body: JSON.stringify({
+          courseID: idNew,
+          name: data.name,
+          start_date: data.startDate || null,
+          due_date: data.dueDate || null,
+          rubric_text: data.comments || null,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create assignment");
+      }
+
+      const result = await response.json();
+      const createdAssignment = result?.assignment;
 
       if (!createdAssignment?.id) {
         throw new Error("Failed to create assignment");
       }
 
       setAssignments((prev) => [...prev, createdAssignment]);
-      setNewAssignmentName("");
+      setShowCreateModal(false);
       setStatusType("success");
       setStatusMessage("Assignment created successfully!");
     } catch (error) {
@@ -135,9 +166,14 @@ export default function ClassHome() {
 
         <div className="ClassHeaderRight">
           {isTeacher() ? (
-            <Button onClick={() => importCSV(id as string)}>
-              Add Students via CSV
-            </Button>
+            <>
+              <Button onClick={() => setShowCreateModal(true)}>
+                Create Assignment
+              </Button>
+              <Button onClick={() => importCSV(id as string)}>
+                Add Students via CSV
+              </Button>
+            </>
           ) : null}
         </div>
       </div>
@@ -164,29 +200,26 @@ export default function ClassHome() {
               <li key={assignment.id}>
                 <AssignmentCard
                   id={assignment.id}
+                  name={assignment.name}
+                  startDate={assignment.start_date}
+                  dueDate={assignment.due_date}
+                  status={assignment.status}
                   onEdit={() => setEditingAssignment(assignment)}
                   onDelete={handleDeleteAssignment}
                   isTeacher={isTeacher()}
-                >
-                  {assignment.name}
-                </AssignmentCard>
+                />
               </li>
             ))}
           </ul>
         </div>
-
-        {isTeacher() ? (
-          <div className="AssInputChunk">
-            <span>New Assignment Name:</span>
-            <Textbox
-              placeholder="New Assignment..."
-              onInput={setNewAssignmentName}
-              className="AssignmentInput"
-            />
-            <Button onClick={tryCreateAssingment}>Add</Button>
-          </div>
-        ) : null}
       </div>
+
+      {showCreateModal && (
+        <CreateAssignmentModal
+          onCreate={tryCreateAssingment}
+          onCancel={() => setShowCreateModal(false)}
+        />
+      )}
 
       {editingAssignment && (
         <AssignmentEditor

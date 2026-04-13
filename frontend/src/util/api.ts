@@ -1133,8 +1133,9 @@ export const resetUserPassword = async (userId: number, newPassword: string) => 
   return await response.json();
 };
 
-export const getMyProfile = async () => {
-  const response = await fetch(`${BASE_URL}/user/`, {
+// Student Enrollment Management (Admin)
+export const getAllStudents = async () => {
+  const response = await fetch(`${BASE_URL}/admin/students`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -1145,45 +1146,66 @@ export const getMyProfile = async () => {
   maybeHandleExpire(response);
 
   if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
-    throw new Error(data.msg || `Response status: ${response.status}`);
+    throw new Error(`Response status: ${response.status}`);
   }
 
   return await response.json();
 };
 
-export const updateMyProfile = async (updates: {
-  username?: string;
-  pronouns?: string;
-  profilePicture?: File | null;
-}) => {
-  const formData = new FormData();
-
-  if (updates.username !== undefined) {
-    formData.append("username", updates.username);
-  }
-
-  if (updates.pronouns !== undefined) {
-    formData.append("pronouns", updates.pronouns);
-  }
-
-  if (updates.profilePicture) {
-    formData.append("profile_picture", updates.profilePicture);
-  }
-
-  const response = await fetch(`${BASE_URL}/user/`, {
-    method: "PUT",
-    body: formData,
+export const getAllClassesWithStudents = async () => {
+  const response = await fetch(`${BASE_URL}/admin/classes-with-students`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
     credentials: "include",
   });
 
   maybeHandleExpire(response);
 
-  const data = await response.json().catch(() => ({}));
-
   if (!response.ok) {
-    throw new Error(data.msg || `Response status: ${response.status}`);
+    throw new Error(`Response status: ${response.status}`);
   }
 
-  return data;
+  return await response.json();
+};
+
+export const enrollStudentInClass = async (studentId: number, classId: number) => {
+  const response = await fetch(`${BASE_URL}/admin/enroll-student`, {
+    method: "POST",
+    body: JSON.stringify({ student_id: studentId, class_id: classId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const unenrollStudentFromClass = async (studentId: number, classId: number) => {
+  const response = await fetch(`${BASE_URL}/admin/unenroll-student`, {
+    method: "POST",
+    body: JSON.stringify({ student_id: studentId, class_id: classId }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  maybeHandleExpire(response);
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.msg || `Response status: ${response.status}`);
+  }
+
+  return await response.json();
 };

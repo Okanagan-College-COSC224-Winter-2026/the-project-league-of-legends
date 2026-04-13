@@ -4,24 +4,25 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: #000;
-  background-color: #fff;
+  color: #111827;
+  background-color: #fafbfc;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Color vars */
-  --text-primary: #000;
-  --text-secondary: #4d4d4d;
+  
+  /* Color vars - Vibrant Purple & Teal Theme */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
 
-  --background-primary: #fff;
-  --background-secondary: #dcdcdc;
-  --background-tertiary: #b5b5b5;
+  --background-primary: #fafbfc;
+  --background-secondary: #f0f4f8;
+  --background-tertiary: #d5e3f2;
 
-  --button-primary: #4bd530;
-  --button-secondary: #999;
+  --button-primary: #8b5cf6;
+  --button-secondary: #06b6d4;
   --button-disabled: var(--text-secondary);
 }
 

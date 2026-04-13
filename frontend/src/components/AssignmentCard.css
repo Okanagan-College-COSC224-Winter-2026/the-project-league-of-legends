@@ -5,32 +5,115 @@
   align-items: center;
   color: var(--text-primary);
   position: relative;
-  padding: 4px;
+  padding: 12px;
 
   width: 95%;
   height:auto;
 
   border-radius: 6px;
+  border: 1px solid var(--background-tertiary);
 
   font-weight: bold;
   font-size: 1rem;
   text-align: left;
+  transition: all 0.2s ease;
 }
 
 .A_Card img {
   width: 40px;
   height: 40px;
+  margin-right: 12px;
+  flex-shrink: 0;
 }
 
 /*TODO: add disabled functionality */
 .A_Card:hover{
   cursor: pointer;
   background-color: var(--background-secondary);
+  border-color: var(--button-primary);
 }
 
 
 .card-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.assignment-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.assignment-details {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+
+.detail-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.detail-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 40px;
+}
+
+.detail-value {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-active {
+  background-color: #dbeafe;
+  color: #1e40af;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-completed {
+  background-color: #dcfce7;
+  color: #166534;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-overdue {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-upcoming {
+  background-color: #e0e7ff;
+  color: #3730a3;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .card-actions {

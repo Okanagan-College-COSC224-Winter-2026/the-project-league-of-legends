@@ -1,15 +1,189 @@
-.AdminUserManagement-Page {
+/* Header Section */
+.AdminUserManagement-Header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  width: 100%;
-  background-color: #fff;
-  padding-top: 16px;
-  box-sizing: border-box;
+  padding: 20px 30px;
+  background: var(--background-primary);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  margin: 0 auto;
+  width: 90%;
+  max-width: 1200px;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
+.AdminUserManagement-HeaderLeft {
+  flex: 1;
+}
+
+.AdminUserManagement-HeaderLeft h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.AdminUserManagement-HeaderRight {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Body Section */
+.AdminUserManagement-Body {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 0;
+}
+
+/* Search Bar */
+.AdminUserManagement-SearchBar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.AdminUserManagement-SearchInput {
+  flex: 1;
+  min-width: 250px;
+}
+
+/* Loading and Empty States */
+.AdminUserManagement-LoadingMessage,
+.AdminUserManagement-EmptyMessage {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+/* Table Section */
+.AdminUserManagement-TableWrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.AdminUserManagement-Table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.AdminUserManagement-TableHead tr {
+  background: var(--background-secondary);
+  border-bottom: 2px solid var(--border-color, #e5e7eb);
+}
+
+.AdminUserManagement-TableHead th {
+  padding: 12px;
+  text-align: left;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.AdminUserManagement-TableBody tr {
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  transition: background-color 0.2s;
+}
+
+.AdminUserManagement-TableBody tr:hover {
+  background: var(--background-secondary);
+}
+
+.AdminUserManagement-TableBody td {
+  padding: 12px;
+  color: var(--text-primary);
+}
+
+/* Role Badge */
+.AdminUserManagement-RoleBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.AdminUserManagement-RoleBadge.student {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.AdminUserManagement-RoleBadge.teacher {
+  background: #dbeafe;
+  color: #0369a1;
+}
+
+.AdminUserManagement-RoleBadge.admin {
+  background: #fecaca;
+  color: #831010;
+}
+
+/* Actions Buttons */
+.AdminUserManagement-EditButton,
+.AdminUserManagement-ResetButton,
+.AdminUserManagement-DeleteButton {
+  padding: 6px 12px;
+  margin-right: 8px;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 4px;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.AdminUserManagement-EditButton:hover {
+  background: var(--background-tertiary);
+  border-color: var(--button-primary);
+}
+
+.AdminUserManagement-ResetButton:hover:not(:disabled) {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.AdminUserManagement-DeleteButton:hover:not(:disabled) {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+.AdminUserManagement-EditButton:disabled,
+.AdminUserManagement-ResetButton:disabled,
+.AdminUserManagement-DeleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Footer Section */
+.AdminUserManagement-Footer {
+  text-align: center;
+  padding: 15px 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  margin-top: 20px;
+}
+
+/* Back Button Container */
+.AdminUserManagement-BackButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+/* Modal Section */
 .AdminUserManagement-Modal {
   position: fixed;
   top: 0;
@@ -24,7 +198,7 @@
 }
 
 .AdminUserManagement-ModalContent {
-  background: rgb(197, 197, 197);
+  background: var(--background-primary);
   padding: 32px;
   border-radius: 8px;
   max-width: 500px;
@@ -36,202 +210,117 @@
 
 .AdminUserManagement-ModalContent h2 {
   margin-top: 0;
-  margin-bottom: 24px;
-  color: #333;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .AdminUserManagement-ModalContent p {
   margin: 0 0 16px 0;
   color: var(--text-secondary);
-}
-
-.AdminUserManagement {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.AdminUserManagement h1 {
-  margin-top: 0;
-}
-
-.AdminUserManagement-FormContainer {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.AdminUserManagement-ButtonGroup {
-  display: flex;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.AdminUserManagement-SearchBar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  display: block;
-}
-
-.AdminUserManagement-SearchInput {
-  flex: 1;
-  min-width: 200px;
-  max-width: 90%;
-}
-
-.AdminUserManagement-LoadingMessage,
-.AdminUserManagement-EmptyMessage {
-  text-align: center;
-  padding: 20px;
-}
-
-.AdminUserManagement-TableWrapper {
-  max-height: 60vh;
-  overflow-y: auto;
-  overflow-x: auto;
-  border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
-}
-
-.AdminUserManagement-Table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
-}
-
-.AdminUserManagement-TableHead tr {
-  background: var(--bg-secondary);
-  border-bottom: 2px solid var(--border-color, #333);
-}
-
-.AdminUserManagement-TableHead th {
-  padding: 12px;
-  text-align: left;
-}
-
-.AdminUserManagement-TableHead th:last-child {
-  text-align: center;
-}
-
-.AdminUserManagement-TableBody tr {
-  border-bottom: 1px solid var(--border-color, #333);
-}
-
-.AdminUserManagement-TableBody td {
-  padding: 12px;
-}
-
-.AdminUserManagement-TableBody td:last-child {
-  text-align: center;
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.AdminUserManagement-RoleBadge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-}
-
-.AdminUserManagement-RoleBadge.admin {
-  background: #fff2e9;
-}
-
-.AdminUserManagement-RoleBadge.teacher {
-  background: #8ca5ef;
-}
-
-.AdminUserManagement-RoleBadge.student {
-  background: #cbffa8;
-}
-
-.AdminUserManagement-EditButton {
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: 1px solid #4169e1;
-  background: transparent;
-  color: #4169e1;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: bold;
-  transition: all 0.2s ease;
-}
-
-.AdminUserManagement-EditButton:hover {
-  background: rgba(65, 105, 225, 0.1);
-}
-
-.AdminUserManagement-DeleteButton {
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: 1px solid #d32f2f;
-  background: transparent;
-  color: #d32f2f;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: bold;
-  transition: all 0.2s ease;
-}
-
-.AdminUserManagement-DeleteButton:hover:not(:disabled) {
-  background: rgba(211, 47, 47, 0.1);
-}
-
-.AdminUserManagement-DeleteButton:disabled {
-  border-color: #999;
-  color: #999;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.AdminUserManagement-ResetButton{
-  padding: 6px 12px;
-  border-radius: 4px;
-  border: 1px solid #999;
-  background: transparent;
-  color: #000000;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: bold;
-  transition: all 0.2s ease;
-}
-
-.AdminUserManagement-ResetButton:hover {
-  background: rgba(0, 0, 0, 0.1);
-}
-
-.AdminUserManagement-ResetButton:disabled {
-  border-color: #999;
-  color: #999;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-.AdminUserManagement-Footer {
-  margin-top: 20px;
-  padding: 10px;
-  text-align: center;
-  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
-.AdminUserManagement-BackButtonContainer {
-  margin-top: 20px;
+/* Form Body */
+.AdminUserManagement-FormBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
-.AdminUserManagement-RoleSelect {
-  width: 100%;
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid var(--border-color, #666);
-  background: var(--bg-primary);
+/* Form Group */
+.AdminUserManagement-FormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.AdminUserManagement-FormGroup span {
   color: var(--text-primary);
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.AdminUserManagement-Input,
+.AdminUserManagement-Select {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.AdminUserManagement-Input:focus,
+.AdminUserManagement-Select:focus {
+  outline: none;
+  border-color: var(--button-primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.AdminUserManagement-Select {
+  cursor: pointer;
+}
+
+/* Modal Footer */
+.AdminUserManagement-ModalFooter {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .AdminUserManagement-Header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px 20px;
+  }
+
+  .AdminUserManagement-HeaderLeft h1 {
+    font-size: 24px;
+  }
+
+  .AdminUserManagement-Body {
+    width: 95%;
+    padding: 20px 0;
+  }
+
+  .AdminUserManagement-SearchBar {
+    flex-direction: column;
+  }
+
+  .AdminUserManagement-SearchInput {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .AdminUserManagement-Table {
+    font-size: 0.85rem;
+  }
+
+  .AdminUserManagement-TableHead th,
+  .AdminUserManagement-TableBody td {
+    padding: 8px;
+  }
+
+  .AdminUserManagement-EditButton,
+  .AdminUserManagement-ResetButton,
+  .AdminUserManagement-DeleteButton {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    margin-right: 4px;
+  }
+
+  .AdminUserManagement-ModalContent {
+    width: 95%;
+    padding: 24px;
+  }
 }

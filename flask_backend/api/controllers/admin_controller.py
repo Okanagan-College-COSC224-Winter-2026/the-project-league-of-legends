@@ -7,8 +7,9 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import get_jwt_identity
 from werkzeug.security import generate_password_hash
 
-from ..models import User, UserSchema
-from .auth_controller import jwt_admin_required
+from ..models import User, UserSchema, Course, User_Course
+from ..models.db import db
+from .auth_controller import _normalize_email, jwt_admin_required
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -45,8 +46,10 @@ def create_user():
     if role not in ["student", "teacher", "admin"]:
         return jsonify({"msg": "Invalid role. Must be 'student', 'teacher', or 'admin'"}), 400
 
-    # Check if user already exists
+    # Normalize email to lowercase (case-insensitive duplicate check)
+    email = _normalize_email(email)
     existing_user = User.get_by_email(email)
+
     if existing_user:
         return jsonify({"msg": f"User with email {email} is already registered"}), 400
 
@@ -131,10 +134,13 @@ def update_user(user_id):
         return jsonify({"msg": "At least one field (name or email) must be provided"}), 400
 
     # If email is being updated, check for duplicates
-    if email and email != user.email:
-        existing_user = User.get_by_email(email)
-        if existing_user:
-            return jsonify({"msg": f"Email {email} is already in use"}), 400
+    if email:
+        # Normalize email to lowercase (case-insensitive duplicate check)
+        email = _normalize_email(email)
+        if email != user.email:
+            existing_user = User.get_by_email(email)
+            if existing_user:
+                return jsonify({"msg": f"Email {email} is already in use"}), 400
 
     # Update fields
     if name:
@@ -213,3 +219,142 @@ def delete_user(user_id):
     user.delete()
 
     return jsonify({"msg": "User deleted successfully"}), 200
+
+
+@bp.route("/students", methods=["GET"])
+@jwt_admin_required
+def get_all_students():
+    """Get all students with their enrollment status (admin only)"""
+    students = db.session.query(User).filter(User.role == "student").all()
+    
+    student_data = []
+    for student in students:
+        # Get enrolled courses
+        enrollments = db.session.query(User_Course).filter(User_Course.userID == student.id).all()
+        enrolled_courses = []
+        for enrollment in enrollments:
+            course = db.session.query(Course).get(enrollment.courseID)
+            if course:
+                teacher = db.session.query(User).get(course.teacherID)
+                enrolled_courses.append({
+                    "id": course.id,
+                    "name": course.name,
+                    "teacher_name": teacher.name if teacher else "Unknown"
+                })
+        
+        student_data.append({
+            "id": student.id,
+            "name": student.name,
+            "email": student.email,
+            "enrolled_courses": enrolled_courses,
+            "enrollment_count": len(enrolled_courses)
+        })
+    
+    return jsonify(student_data), 200
+
+
+@bp.route("/classes-with-students", methods=["GET"])
+@jwt_admin_required
+def get_classes_with_students():
+    """Get all classes with their enrolled students (admin only)"""
+    courses = db.session.query(Course).all()
+    
+    class_data = []
+    for course in courses:
+        # Get enrolled students
+        enrollments = db.session.query(User_Course).filter(User_Course.courseID == course.id).all()
+        enrolled_students = []
+        for enrollment in enrollments:
+            user = db.session.query(User).get(enrollment.userID)
+            if user and user.role == "student":
+                enrolled_students.append({
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email
+                })
+        
+        teacher = db.session.query(User).get(course.teacherID)
+        class_data.append({
+            "id": course.id,
+            "name": course.name,
+            "teacher_id": course.teacherID,
+            "teacher_name": teacher.name if teacher else "Unknown",
+            "enrolled_students": enrolled_students,
+            "student_count": len(enrolled_students)
+        })
+    
+    return jsonify(class_data), 200
+
+
+@bp.route("/enroll-student", methods=["POST"])
+@jwt_admin_required
+def admin_enroll_student():
+    """Enroll a student in a class (admin only)"""
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    student_id = request.json.get("student_id")
+    class_id = request.json.get("class_id")
+    
+    if not student_id or not class_id:
+        return jsonify({"msg": "Student ID and Class ID are required"}), 400
+    
+    student = db.session.query(User).get(student_id)
+    if not student or student.role != "student":
+        return jsonify({"msg": "Student not found"}), 404
+    
+    course = db.session.query(Course).get(class_id)
+    if not course:
+        return jsonify({"msg": "Class not found"}), 404
+    
+    # Check if already enrolled
+    existing = db.session.query(User_Course).filter(
+        User_Course.userID == student_id,
+        User_Course.courseID == class_id
+    ).first()
+    
+    if existing:
+        return jsonify({"msg": f"Student {student.name} is already enrolled in {course.name}"}), 400
+    
+    # Enroll
+    User_Course.add(student_id, class_id)
+    
+    return jsonify({
+        "msg": f"Student {student.name} enrolled in {course.name}",
+        "student_id": student_id,
+        "class_id": class_id
+    }), 200
+
+
+@bp.route("/unenroll-student", methods=["POST"])
+@jwt_admin_required
+def admin_unenroll_student():
+    """Remove a student from a class (admin only)"""
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    student_id = request.json.get("student_id")
+    class_id = request.json.get("class_id")
+    
+    if not student_id or not class_id:
+        return jsonify({"msg": "Student ID and Class ID are required"}), 400
+    
+    # Get and delete the enrollment
+    enrollment = db.session.query(User_Course).filter(
+        User_Course.userID == student_id,
+        User_Course.courseID == class_id
+    ).first()
+    
+    if not enrollment:
+        return jsonify({"msg": "Student is not enrolled in this class"}), 404
+    
+    student = db.session.query(User).get(student_id)
+    course = db.session.query(Course).get(class_id)
+    
+    enrollment.delete()
+    
+    return jsonify({
+        "msg": f"Student {student.name} removed from {course.name}",
+        "student_id": student_id,
+        "class_id": class_id
+    }), 200

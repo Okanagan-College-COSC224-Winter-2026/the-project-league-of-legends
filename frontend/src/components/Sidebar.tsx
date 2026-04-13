@@ -1,4 +1,4 @@
-import { logout, isAdmin, isTeacher } from "../util/login";
+import { isAdmin, isTeacher } from "../util/login";
 import "./Sidebar.css";
 
 export default function Sidebar() {
@@ -12,9 +12,7 @@ export default function Sidebar() {
       </div>
 
       <div className="SidebarTop">
-        <SidebarRow onClick={() => logout()} href="#" selected={false}>
-          Logout
-        </SidebarRow>
+        
 
         <SidebarRow selected={location === "/home"} href="/home">
           Home
@@ -32,29 +30,27 @@ export default function Sidebar() {
         )}
       
       {isAdmin() && (
-        <SidebarRow selected={location === "/admin/create-teacher"} href="/admin/create-teacher">
+        <SidebarRow selected={location === "/admin/student-enrollment"} href="/admin/student-enrollment">
           Student Enrollment
         </SidebarRow>
       )}
 
-        <SidebarRow selected={location.includes("/profile")} href="/profile/1">
-          My Info
-        </SidebarRow>
-          <SidebarRow 
-          selected={location === '/change-password'} 
-          href="/change-password"
-        >
-          Change Password
-        </SidebarRow>
+      <SidebarRow 
+        selected={location === '/change-password'} 
+        href="/change-password"
+      >
+        Change Password
+      </SidebarRow>
 
-        {isAdmin() && (
-          <SidebarRow 
-            selected={location === '/admin/users'} 
-            href="/admin/users"
-          >
-            Manage Users
-          </SidebarRow>
-        )}
+      {isAdmin() && (
+        <SidebarRow 
+          selected={location === '/admin/users'} 
+          href="/admin/users"
+        >
+          Manage Users
+        </SidebarRow>
+      )}
+
       </div>
     </div>
   );

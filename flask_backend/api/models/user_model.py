@@ -2,6 +2,8 @@
 User model for the peer evaluation app.
 """
 
+import re
+
 from sqlalchemy import CheckConstraint
 
 from .db import db
@@ -94,7 +96,7 @@ class User(db.Model):
     @classmethod
     def get_by_email(cls, email):
         """Get user by email"""
-        return cls.query.filter_by(email=email).first()
+        return cls.query.filter(cls.email.ilike(email)).first()
 
     @classmethod
     def create_user(cls, user):
@@ -111,6 +113,23 @@ class User(db.Model):
         """Delete user from the database"""
         db.session.delete(self)
         db.session.commit()
+
+    def isvalid_username(name):
+        """Check if the username is valid (not empty and not too long)"""
+        if not name or not isinstance(name, str):
+            return False, "Name must be a string"
+        
+        name = name.strip()
+        if len(name) < 1 or len(name) > 60:
+            return False, "Name must be between 1 and 60 characters"
+        
+        if not re.match(r"^[A-Za-z0-9\-_.()[]+$", name):
+            return False, "Invalid Characters in name"
+        
+        return True, "Valid"
+    
+    
+
 
     def is_teacher_user(self):
         """Check if the user is a teacher (backward compatibility)"""
