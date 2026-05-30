@@ -1,4 +1,5 @@
 """Tests for group management endpoints (US27)"""
+import io
 import json
 import pytest
 import datetime
@@ -146,6 +147,66 @@ class TestGroupCreation:
         )
         assert response.status_code == 403
         assert "not the teacher" in response.json["msg"]
+
+    def test_group_changes_blocked_after_submission(
+        self, test_client, course_with_assignment, enroll_user_in_course
+    ):
+        """Teachers cannot modify groups after any submission exists for the assignment."""
+        assignment_id = course_with_assignment["assignment_id"]
+        course_id = course_with_assignment["course_id"]
+
+        test_client.post(
+            "/auth/register",
+            data=json.dumps(
+                {
+                    "name": "Student User",
+                    "email": "student-lock@example.com",
+                    "password": "password123",
+                }
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+        student = User.get_by_email("student-lock@example.com")
+        enroll_user_in_course(student.id, course_id)
+
+        test_client.post("/auth/logout")
+        test_client.post(
+            "/auth/login",
+            data=json.dumps(
+                {
+                    "email": "student-lock@example.com",
+                    "password": "password123",
+                }
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+
+        submit_response = test_client.post(
+            f"/assignment/submit/{assignment_id}",
+            data={"file": (io.BytesIO(b"hello"), "submission.txt")},
+            content_type="multipart/form-data",
+        )
+        assert submit_response.status_code in (200, 201)
+
+        test_client.post("/auth/logout")
+        test_client.post(
+            "/auth/login",
+            data=json.dumps(
+                {
+                    "email": "teacher@example.com",
+                    "password": "password",
+                }
+            ),
+            headers={"Content-Type": "application/json"},
+        )
+
+        response = test_client.post(
+            "/groups/create",
+            data=json.dumps({"assignmentID": assignment_id, "name": "Locked Group"}),
+            headers={"Content-Type": "application/json"},
+        )
+        assert response.status_code == 400
+        assert "submissions or reviews" in response.json["msg"]
 
 
 class TestGetGroups:

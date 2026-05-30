@@ -6,6 +6,8 @@ from ..models import (
     Course,
     CourseGroup,
     Group_Members,
+    Review,
+    Submission,
     User_Course,
     User,
     CourseGroupSchema,
@@ -57,6 +59,14 @@ def _serialize_users(user_ids):
     return users
 
 
+def _assignment_has_activity(assignment_id):
+    has_submission = (
+        Submission.query.filter_by(assignmentID=assignment_id).first() is not None
+    )
+    has_review = Review.query.filter_by(assignmentID=assignment_id).first() is not None
+    return has_submission or has_review
+
+
 @bp.route("/create", methods=["POST"])
 @jwt_teacher_required
 def create_group():
@@ -85,6 +95,16 @@ def create_group():
 
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Groups cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
 
     if not assignment.can_modify():
         return jsonify({"msg": "Groups cannot be modified after assignment due date"}), 400
@@ -286,6 +306,17 @@ def save_groups_legacy():
         return jsonify({"msg": "User not found"}), 404
     if not _can_manage_assignment(user, course):
         return jsonify({"msg": "Unauthorized: You cannot modify groups for this assignment"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Groups cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
+
     if not assignment.can_modify():
         return jsonify({"msg": "Groups cannot be modified after assignment due date"}), 400
 
@@ -382,6 +413,16 @@ def edit_group(group_id):
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
 
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Groups cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
+
     if not assignment.can_modify():
         return jsonify({"msg": "Groups cannot be modified after assignment due date"}), 400
 
@@ -428,6 +469,16 @@ def delete_group(group_id):
 
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Groups cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
 
     if not assignment.can_modify():
         return jsonify({"msg": "Groups cannot be deleted after assignment due date"}), 400
@@ -496,6 +547,16 @@ def add_member_to_group(group_id):
 
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Groups cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
 
     if not assignment.can_modify():
         return jsonify({"msg": "Members cannot be added after assignment due date"}), 400
@@ -572,6 +633,16 @@ def remove_member_from_group(group_id, user_id):
 
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Groups cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
 
     if not assignment.can_modify():
         return jsonify({"msg": "Members cannot be removed after assignment due date"}), 400

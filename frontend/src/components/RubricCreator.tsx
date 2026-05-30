@@ -49,8 +49,9 @@ export default function RubricCreator({ onRubricCreated, id }: RubricCreatorProp
             }
         } catch (error) {
             console.error("Error creating criteria:", error);
+            const msg = error instanceof Error ? error.message : String(error);
             setStatusType('error');
-            setStatusMessage('Error creating rubric.');
+            setStatusMessage(msg || 'Error creating rubric.');
         }
     };
 

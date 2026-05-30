@@ -10,6 +10,8 @@ from ..models import (
     Course,
     Rubric,
     CriteriaDescription,
+    Review,
+    Submission,
     User,
     RubricSchema,
     CriteriaDescriptionSchema,
@@ -17,6 +19,14 @@ from ..models import (
 from .auth_controller import jwt_teacher_required
 
 bp = Blueprint("rubric", __name__, url_prefix="")
+
+
+def _assignment_has_activity(assignment_id):
+    has_submission = (
+        Submission.query.filter_by(assignmentID=assignment_id).first() is not None
+    )
+    has_review = Review.query.filter_by(assignmentID=assignment_id).first() is not None
+    return has_submission or has_review
 
 
 @bp.route("/create_rubric", methods=["POST"])
@@ -45,6 +55,17 @@ def create_rubric():
 
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Rubrics cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
+
     # Delete existing rubric with same ID if it exists (as per endpoint spec)
     existing = Rubric.query.filter_by(assignmentID=assignment_id).first()
     if existing:
@@ -86,6 +107,16 @@ def create_criteria():
     course = Course.get_by_id(assignment.courseID)
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Rubrics cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
 
     new_criteria = CriteriaDescription(
         rubricID=rubric_id, question=question, scoreMax=score_max, hasScore=has_score
@@ -172,6 +203,16 @@ def delete_rubric():
     course = Course.get_by_id(assignment.courseID)
     if course.teacherID != user.id:
         return jsonify({"msg": "Unauthorized: You are not the teacher of this class"}), 403
+
+    if _assignment_has_activity(assignment.id):
+        return (
+            jsonify(
+                {
+                    "msg": "Rubrics cannot be modified after submissions or reviews exist for this assignment"
+                }
+            ),
+            400,
+        )
 
     # delete the rubric (cascade will remove criteria)
     rubric.delete()

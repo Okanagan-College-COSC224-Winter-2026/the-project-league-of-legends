@@ -2,7 +2,10 @@
 Tests for rubric endpoints
 """
 
+import io
 import json
+
+from api.models import User
 
 
 def test_teacher_can_create_rubric(test_client, make_admin):
@@ -99,6 +102,147 @@ def test_non_teacher_cannot_create_rubric(test_client, make_admin):
 
     assert response.status_code == 403
     assert "Unauthorized" in response.json["msg"]
+
+
+def test_create_criteria_blocked_after_review_exists(test_client, make_admin):
+    """Rubric changes are blocked once any review exists for the assignment."""
+    teacher = make_admin(
+        email="teacher-lock@example.com", password="teacher", name="Teacher Lock"
+    )
+    test_client.post(
+        "/auth/login",
+        data=json.dumps({"email": "teacher-lock@example.com", "password": "teacher"}),
+        headers={"Content-Type": "application/json"},
+    )
+
+    class_response = test_client.post(
+        "/class/create_class",
+        data=json.dumps({"name": "Lock Course"}),
+        headers={"Content-Type": "application/json"},
+    )
+    class_id = class_response.json["class"]["id"]
+
+    assignment_response = test_client.post(
+        "/assignment/create_assignment",
+        data=json.dumps(
+            {"courseID": class_id, "name": "Assignment Lock", "rubric": "text"}
+        ),
+        headers={"Content-Type": "application/json"},
+    )
+    assignment_id = assignment_response.json["assignment"]["id"]
+
+    rubric_response = test_client.post(
+        "/create_rubric",
+        data=json.dumps({"assignmentID": assignment_id, "canComment": True}),
+        headers={"Content-Type": "application/json"},
+    )
+    rubric_id = rubric_response.json["id"]
+
+    review_response = test_client.post(
+        "/create_review",
+        data=json.dumps(
+            {
+                "assignmentID": assignment_id,
+                "reviewerID": teacher.id,
+                "revieweeID": teacher.id,
+            }
+        ),
+        headers={"Content-Type": "application/json"},
+    )
+    assert review_response.status_code in (200, 201)
+
+    response = test_client.post(
+        "/create_criteria",
+        data=json.dumps(
+            {
+                "rubricID": rubric_id,
+                "question": "Should be blocked",
+                "scoreMax": 10,
+                "hasScore": True,
+            }
+        ),
+        headers={"Content-Type": "application/json"},
+    )
+
+    assert response.status_code == 400
+    assert "submissions or reviews" in response.json["msg"]
+
+
+def test_create_rubric_blocked_after_submission_exists(
+    test_client, make_admin, enroll_user_in_course
+):
+    """Teachers cannot create/replace rubrics once a submission exists for the assignment."""
+    make_admin(email="teacher-sub-lock@example.com", password="teacher", name="Teacher")
+    test_client.post(
+        "/auth/login",
+        data=json.dumps({"email": "teacher-sub-lock@example.com", "password": "teacher"}),
+        headers={"Content-Type": "application/json"},
+    )
+
+    class_response = test_client.post(
+        "/class/create_class",
+        data=json.dumps({"name": "Submission Lock Class"}),
+        headers={"Content-Type": "application/json"},
+    )
+    class_id = class_response.json["class"]["id"]
+
+    assignment_response = test_client.post(
+        "/assignment/create_assignment",
+        data=json.dumps(
+            {"courseID": class_id, "name": "Rubric Lock Assignment", "rubric": "text"}
+        ),
+        headers={"Content-Type": "application/json"},
+    )
+    assignment_id = assignment_response.json["assignment"]["id"]
+
+    test_client.post(
+        "/auth/register",
+        data=json.dumps(
+            {
+                "name": "Student Submit",
+                "email": "student-submit-lock@example.com",
+                "password": "password123",
+            }
+        ),
+        headers={"Content-Type": "application/json"},
+    )
+    student = User.get_by_email("student-submit-lock@example.com")
+
+    enroll_user_in_course(student.id, class_id)
+
+    test_client.post("/auth/logout")
+    test_client.post(
+        "/auth/login",
+        data=json.dumps(
+            {
+                "email": "student-submit-lock@example.com",
+                "password": "password123",
+            }
+        ),
+        headers={"Content-Type": "application/json"},
+    )
+
+    submit_response = test_client.post(
+        f"/assignment/submit/{assignment_id}",
+        data={"file": (io.BytesIO(b"rubric lock"), "submission.txt")},
+        content_type="multipart/form-data",
+    )
+    assert submit_response.status_code in (200, 201)
+
+    test_client.post("/auth/logout")
+    test_client.post(
+        "/auth/login",
+        data=json.dumps({"email": "teacher-sub-lock@example.com", "password": "teacher"}),
+        headers={"Content-Type": "application/json"},
+    )
+
+    response = test_client.post(
+        "/create_rubric",
+        data=json.dumps({"assignmentID": assignment_id, "canComment": True}),
+        headers={"Content-Type": "application/json"},
+    )
+    assert response.status_code == 400
+    assert "submissions or reviews" in response.json["msg"]
 
 
 

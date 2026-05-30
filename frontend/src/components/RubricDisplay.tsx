@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import Criteria from './Criteria';
 import { getCriteria, getRubric, deleteRubric } from '../util/api';
 import { isTeacher } from '../util/login';
+import StatusMessage from './StatusMessage';
 import './RubricDisplay.css';
 
 interface RubricDisplayProps {
@@ -22,6 +23,8 @@ interface RubricInfo {
 export default function RubricDisplay({ rubricId, onCriterionSelect, grades, criterionComments, onCriterionCommentChange }: RubricDisplayProps) {
     const [criteria, setCriteria] = useState<Criterion[]>([]);
     const [rubricInfo, setRubricInfo] = useState<RubricInfo | null>(null);
+    const [statusMessage, setStatusMessage] = useState('');
+    const [statusType, setStatusType] = useState<'error' | 'success'>('error');
     const questions: string[] = [];
     const scoreMaxes: number[] = [];
     const hasScores: boolean[] = [];
@@ -57,6 +60,7 @@ export default function RubricDisplay({ rubricId, onCriterionSelect, grades, cri
     return (
         <div className="RubricDisplay">
             <h2>Rubric</h2>
+            <StatusMessage message={statusMessage} type={statusType} />
             {isTeacher() && (
                 <div style={{ textAlign: 'right', marginBottom: 8 }}>
                     <button className="delete-button"
@@ -64,13 +68,18 @@ export default function RubricDisplay({ rubricId, onCriterionSelect, grades, cri
                             if (!rubricId) return;
                             if (!confirm('Delete this rubric? This cannot be undone.')) return;
                             try {
+                                setStatusMessage('');
                                 await deleteRubric(rubricId);
                                 // clear local state
                                 setCriteria([]);
                                 setRubricInfo(null);
+                                setStatusType('success');
+                                setStatusMessage('Rubric deleted successfully.');
                             } catch (err) {
                                 console.error('Failed to delete rubric', err);
-                                alert('Failed to delete rubric');
+                                const msg = err instanceof Error ? err.message : String(err);
+                                setStatusType('error');
+                                setStatusMessage(msg || 'Failed to delete rubric');
                             }
                         }}
                     >
